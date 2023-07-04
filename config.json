@@ -1,0 +1,5 @@
+{
+  "string1": "Hello",
+  "string2": "World",
+  "connectionString": "DATA SOURCE=localhost:1521/orcl;USER ID='\"C##HR\"';PASSWORD='Wp2167382'"
+}
