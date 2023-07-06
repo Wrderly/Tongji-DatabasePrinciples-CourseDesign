@@ -9,6 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static System.Net.Mime.MediaTypeNames;
+using System.Xml.Linq;
 
 namespace Database_CourseDesign
 {
@@ -24,9 +25,11 @@ namespace Database_CourseDesign
         private string? readerPwd;
         private string? tableSpaceTemp;
         private string? tableSpaceData;
+
+        private string? path;
         public void Init(string programPath)
         {
-            string path = programPath;
+            path = programPath;
             //根据项目路径设置配置文件路径
             string filePath = Path.Combine(path, "config.json");
             string jsonFromFile = File.ReadAllText(filePath);
@@ -93,7 +96,7 @@ namespace Database_CourseDesign
             }
 
             InitTable(managerConnection, userID);
-            InitRight(managerConnection, userID);
+            //InitRight(managerConnection, userID);
 
             Console.WriteLine(userID + " 关闭数据库连接");
             //关闭数据库连接
@@ -211,8 +214,27 @@ namespace Database_CourseDesign
         private void InitTable(OracleConnection connection, string userID)
         {
             Console.WriteLine(userID + " 开始创建数据库表");
-            //OracleCommand command = new OracleCommand("", connection);
-            //command.ExecuteNonQuery();
+            XDocument doc = XDocument.Load(path + "\\SQLXML.xml");
+            for (int i = 0; i < 14; i++)
+            {
+                try
+                {
+                    string sql = doc.Descendants("Query").Where(x => (string)x.Attribute("name") == ("CreateTable" + i.ToString())).FirstOrDefault()?.Value;
+                    OracleCommand command = new OracleCommand(sql, connection);
+                    command.ExecuteNonQuery();
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Code == 955)
+                    {
+                        Console.WriteLine(i.ToString() + " 已存在同名表");
+                    }
+                    else
+                    {
+                        Console.WriteLine(i.ToString() + " exception: " + ex.Message);
+                    }
+                }
+            }
         }
 
         private void InitRight(OracleConnection connection, string userID)

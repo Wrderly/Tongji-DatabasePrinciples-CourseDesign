@@ -14,9 +14,9 @@ Console.WriteLine($"项目路径: {programPath}");
 ManageSystemInit manageSystemInit = new ManageSystemInit();
 manageSystemInit.Init(programPath);
 
-/**
+/**/
 //数据库连接测试
 Test test = new Test(programPath);
-test.ConnectTest();
-test.PrintTableTest();
+//test.ConnectTest();
+//test.PrintTableTest();
 /**/
