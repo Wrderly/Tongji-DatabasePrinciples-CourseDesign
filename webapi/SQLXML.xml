@@ -1,0 +1,155 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Queries>
+	<Query name="SelectFromTable">
+		SELECT {columns}
+		FROM {table}
+		WHERE {conditions}
+	</Query>
+	<Query name="CreateTable0">
+		CREATE TABLE Administrator (
+		admin_id INTEGER PRIMARY KEY,
+		admin_name VARCHAR(50) NOT NULL,
+		phone_number VARCHAR(20),
+		email VARCHAR(100),
+		account VARCHAR(50) NOT NULL,
+		password VARCHAR(50) NOT NULL
+		)
+	</Query>
+	<Query name="CreateTable1">
+		CREATE TABLE ReaderType (
+		reader_type VARCHAR(50) PRIMARY KEY,
+		note VARCHAR(200)
+		)
+	</Query>
+	<Query name="CreateTable2">
+		CREATE TABLE SubjectType (
+		subject_type VARCHAR(50) PRIMARY KEY,
+		note VARCHAR(200)
+		)
+	</Query>
+	<Query name="CreateTable3">
+		CREATE TABLE CollectionType (
+		collection_type VARCHAR(50) PRIMARY KEY,
+		note VARCHAR(200)
+		)
+	</Query>
+	<Query name="CreateTable4">
+		CREATE TABLE Supplier (
+		supplier_id INTEGER PRIMARY KEY,
+		supplier_name VARCHAR(50) NOT NULL,
+		phone_number VARCHAR(20),
+		email VARCHAR(100),
+		address VARCHAR(200)
+		)
+	</Query>
+	<Query name="CreateTable5">
+		CREATE TABLE Reader (
+		reader_id INTEGER PRIMARY KEY,
+		reader_name VARCHAR(50) NOT NULL,
+		photo BLOB,
+		phone_number VARCHAR(20),
+		email VARCHAR(100),
+		address VARCHAR(200),
+		reader_type VARCHAR(50),
+		account VARCHAR(50) NOT NULL,
+		password VARCHAR(50) NOT NULL,
+		FOREIGN KEY (reader_type) REFERENCES ReaderType(reader_type)
+		)
+	</Query>
+	<Query name="CreateTable6">
+		CREATE TABLE Book (
+		book_id INTEGER PRIMARY KEY,
+		num INTEGER,
+		ISBN VARCHAR(20) NOT NULL,
+		book_name VARCHAR(100) NOT NULL,
+		author VARCHAR(100) NOT NULL,
+		publisher VARCHAR(100),
+		publication_date DATE,
+		introduction VARCHAR(200),
+		cover_picture VARCHAR(200),
+		price DECIMAL(10, 2),
+		subject_type VARCHAR(50),
+		collection_type VARCHAR(50),
+		FOREIGN KEY (subject_type) REFERENCES SubjectType(subject_type),
+		FOREIGN KEY (collection_type) REFERENCES CollectionType(collection_type)
+		)
+	</Query>
+	<Query name="CreateTable7">
+		CREATE TABLE PurchaseRecord (
+		purchase_id INTEGER PRIMARY KEY,
+		admin_id INTEGER,
+		supplier_id INTEGER,
+		book_id INTEGER,
+		purchase_date DATE,
+		quantity INTEGER,
+		unit_price DECIMAL(10, 2),
+		total_price DECIMAL(10, 2),
+		is_approved INTEGER,
+		FOREIGN KEY (admin_id) REFERENCES Administrator(admin_id),
+		FOREIGN KEY (supplier_id) REFERENCES Supplier(supplier_id),
+		FOREIGN KEY (book_id) REFERENCES Book(book_id)
+		)
+	</Query>
+	<Query name="CreateTable8">
+		CREATE TABLE BorrowRecord (
+		book_id INTEGER,
+		reader_id INTEGER,
+		borrow_date DATE,
+		FOREIGN KEY (book_id) REFERENCES Book(book_id),
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
+		)
+	</Query>
+	<Query name="CreateTable9">
+		CREATE TABLE Reserve (
+		book_id INTEGER,
+		reader_id INTEGER,
+		reserve_date DATE,
+		message varchar(200),
+		FOREIGN KEY (book_id) references book(book_id),
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
+		)
+	</Query>
+	<Query name="CreateTable10">
+		CREATE TABLE ReturnRecord (
+		book_id INTEGER,
+		reader_id INTEGER,
+		return_date DATE,
+		FOREIGN KEY (book_id) REFERENCES Book(book_id),
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
+		)
+	</Query>
+	<Query name="CreateTable11">
+		CREATE TABLE Serve (
+		admin_id INTEGER,
+		reader_id INTEGER,
+		serve_date DATE,
+		type VARCHAR(50),
+		feedback VARCHAR(200),
+		FOREIGN KEY (admin_id) REFERENCES Administrator(admin_id),
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
+		)
+	</Query>
+	<Query name="CreateTable12">
+		CREATE TABLE Rule (
+		collection_type VARCHAR(50),
+		reader_type VARCHAR(50),
+		time_limit INTEGER,
+		max_books INTEGER,
+		max_renew INTEGER,
+		overdue_fine DECIMAL(10, 2),
+		FOREIGN KEY (collection_type) REFERENCES CollectionType(collection_type),
+		FOREIGN KEY (reader_type) REFERENCES ReaderType(reader_type)
+		)
+	</Query>
+	<Query name="CreateTable13">
+		CREATE TABLE Review (
+		review_id INTEGER,
+		reader_id INTEGER,
+		book_id INTEGER,
+		review_text VARCHAR(200),
+		review_date DATE,
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id),
+		FOREIGN KEY (book_id) REFERENCES Book(book_id)
+		)
+	</Query>
+</Queries>
