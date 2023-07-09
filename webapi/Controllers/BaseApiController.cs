@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Database_CourseDesign
+namespace webapi.Controllers
 {
     [Route("baseapi/[controller]")]
     [ApiController]
-    internal class BaseApiController:ControllerBase
+    internal class BaseApiController : ControllerBase
     {
         [HttpGet("basefunc/{str}")]
         public string BaseFunc(string str)
