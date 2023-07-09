@@ -2,6 +2,8 @@
 webapi/obj/
 webapi/bin/
 
+vueapp/obj/
+
 webapi/config.json
 
 vueapp/.DS_Store
