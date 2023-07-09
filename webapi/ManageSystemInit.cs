@@ -224,7 +224,7 @@ namespace Database_CourseDesign
         private void InitTable(OracleConnection connection, string userID)
         {
             Console.WriteLine(userID + " 开始创建数据库表");
-            XDocument doc = XDocument.Load(path + "\\SQLXML.xml");
+            XDocument doc = XDocument.Load(path + "\\SystemInitSQL.xml");
             for (int i = 0; i < 14; i++)
             {
                 try
