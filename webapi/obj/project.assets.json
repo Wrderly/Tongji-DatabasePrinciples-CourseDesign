@@ -2,7 +2,7 @@
   "version": 3,
   "targets": {
     "net7.0": {
-      "Microsoft.AspNetCore.OpenApi/7.0.7": {
+      "Microsoft.AspNetCore.OpenApi/7.0.8": {
         "type": "package",
         "dependencies": {
           "Microsoft.OpenApi": "1.4.3"
@@ -322,10 +322,10 @@
     }
   },
   "libraries": {
-    "Microsoft.AspNetCore.OpenApi/7.0.7": {
-      "sha512": "6E1I154QELFjQ4RvSWwZAlZrvB2Dy3aOkcYAQ+E4NsyqwKqFbG10HeWp/WJfq+2btUz1dKzmNMwnADf8WBk/0w==",
+    "Microsoft.AspNetCore.OpenApi/7.0.8": {
+      "sha512": "1dv1ujP2BF/OTg/lvxXlIB7DHFZlTkIKOMUOxvIKWklyzLlHLgYZDyLol+G8xmU+02fzAluiwvPocBK7GrRs8A==",
       "type": "package",
-      "path": "microsoft.aspnetcore.openapi/7.0.7",
+      "path": "microsoft.aspnetcore.openapi/7.0.8",
       "files": [
         ".nupkg.metadata",
         ".signature.p7s",
@@ -333,7 +333,7 @@
         "THIRD-PARTY-NOTICES.TXT",
         "lib/net7.0/Microsoft.AspNetCore.OpenApi.dll",
         "lib/net7.0/Microsoft.AspNetCore.OpenApi.xml",
-        "microsoft.aspnetcore.openapi.7.0.7.nupkg.sha512",
+        "microsoft.aspnetcore.openapi.7.0.8.nupkg.sha512",
         "microsoft.aspnetcore.openapi.nuspec"
       ]
     },
@@ -1603,26 +1603,26 @@
   },
   "projectFileDependencyGroups": {
     "net7.0": [
-      "Microsoft.AspNetCore.OpenApi >= 7.0.7",
+      "Microsoft.AspNetCore.OpenApi >= 7.0.8",
       "Newtonsoft.Json >= 13.0.3",
       "Swashbuckle.AspNetCore >= 6.5.0",
       "System.Data.OracleClient >= 1.0.8"
     ]
   },
   "packageFolders": {
-    "C:\\Users\\asus\\.nuget\\packages\\": {}
+    "C:\\Users\\user\\.nuget\\packages\\": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\GitHub\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\webapi.csproj",
+      "projectUniqueName": "C:\\Users\\user\\Desktop\\学习\\数据库课设\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\webapi.csproj",
       "projectName": "webapi",
-      "projectPath": "D:\\GitHub\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\webapi.csproj",
-      "packagesPath": "C:\\Users\\asus\\.nuget\\packages\\",
-      "outputPath": "D:\\GitHub\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\obj\\",
+      "projectPath": "C:\\Users\\user\\Desktop\\学习\\数据库课设\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\webapi.csproj",
+      "packagesPath": "C:\\Users\\user\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\user\\Desktop\\学习\\数据库课设\\Tongji-DatabasePrinciples-CourseDesign\\webapi\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
-        "C:\\Users\\asus\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\user\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1651,7 +1651,7 @@
         "dependencies": {
           "Microsoft.AspNetCore.OpenApi": {
             "target": "Package",
-            "version": "[7.0.7, )"
+            "version": "[7.0.8, )"
           },
           "Newtonsoft.Json": {
             "target": "Package",

@@ -1,0 +1,29 @@
+/**************************/
+/* HEADER */
+/**************************/
+
+.header-text {
+    display: flex;
+    background-color: black;
+    height: 2.4rem;
+    width: 100%;
+    position: absolute;
+}
+
+.name {
+    font-size: medium;
+    font-weight: 400;
+    color: green;
+    letter-spacing: 3px;
+    margin-left: 8px;
+    align-self: center;
+}
+
+.user-photo {
+    align-self: center;
+    flex-shrink: 1;
+}
+
+/**************************/
+/* FOOTER */
+/**************************/
