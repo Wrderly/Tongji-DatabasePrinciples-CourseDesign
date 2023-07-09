@@ -1,1 +1,29 @@
 .vs/
+webapi/obj/
+webapi/bin/
+
+webapi/config.json
+
+vueapp/.DS_Store
+vueapp/node_modules
+vueapp/dist
+
+
+# local env files
+vueapp/.env.local
+vueapp/.env.*.local
+
+# Log files
+vueapp/npm-debug.log*
+vueapp/yarn-debug.log*
+vueapp/yarn-error.log*
+vueapp/pnpm-debug.log*
+
+# Editor directories and files
+vueapp/.idea
+vueapp/.vscode
+vueapp/*.suo
+vueapp/*.ntvs*
+vueapp/*.njsproj
+vueapp/*.sln
+vueapp/*.sw?
