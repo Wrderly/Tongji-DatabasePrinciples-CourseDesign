@@ -152,8 +152,4 @@
 		FOREIGN KEY (book_id) REFERENCES Book(book_id)
 		)
 	</Query>
-	<Query name="InsertIntoBook">
-		INSERT INTO book (book_id, num, ISBN, book_name, author, publisher, publication_date, introduction, cover_picture, subject_type, collection_type)
-		VALUES ('{book_id}', '{num}', '{ISBN}', '{book_name}', '{author}', '{publisher}', '{publication_date}', '{introduction}', '{cover_picture}', '{subject_type}', '{collection_type}')
-	</Query>
 </Queries>

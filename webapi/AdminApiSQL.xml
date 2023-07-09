@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Queries>
+	<SelectFromTable>
+		SELECT {columns}
+		FROM {table}
+		WHERE {conditions}
+	</SelectFromTable>
+	<InsertIntoBook>
+		INSERT INTO book (book_id, num, ISBN, book_name, author, publisher, publication_date, introduction, cover_picture, price, subject_type, collection_type)
+		VALUES ('{book_id}', '{num}', '{ISBN}', '{book_name}', '{author}', '{publisher}', '{publication_date}', '{introduction}', '{cover_picture}', '{price}', '{subject_type}', '{collection_type}')
+	</InsertIntoBook>
+</Queries>
