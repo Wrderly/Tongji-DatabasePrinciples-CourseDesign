@@ -1,2 +1,0 @@
-D:\GitHub\Tongji-DatabasePrinciples-CourseDesign\vueapp\obj\Debug\vueapp.esproj.SuggestedBindingRedirects.cache
-D:\GitHub\Tongji-DatabasePrinciples-CourseDesign\vueapp\obj\Debug\vueapp.esproj.CoreCompileInputs.cache
