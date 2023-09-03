@@ -218,5 +218,35 @@ namespace webapi.Controllers
             }
         }
 
+        [HttpGet("getborrowrecord")]
+        public IActionResult getBorrowRecord([FromBody] JObject data)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            string reader_id = data["reader_id"].ToString();
+            string sql =
+                "SELECT reader_id,book_id,book_name,borrow_date,return_date" +
+                "FROM BorrowRecord as BR,Book as B,ReturnRecord as RR" +
+                "WHERE BR.book_id = B.book_id AND BR.book_id = RR.book_id" + reader_id == "default" ? "" : (" AND BR.raeder_id = " + reader_id);
+
+            try
+            {
+                DataSet result = db.OracleQuery(sql);
+                return Ok(new
+                {
+                    result = true,
+                    dataset = result
+                });
+            }
+            catch
+            {
+                return Ok(new
+                {
+                    result = false
+                });
+            }
+        }
     }
 }
