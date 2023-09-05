@@ -3,8 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Data;
 using System.IO;
-using System.Net;
-using System.Security.Principal;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -20,12 +18,12 @@ namespace webapi.Controllers
         private string? userPwd;
         private void InitDB()
         {
-            string jsonFromFile = System.IO.File.ReadAllText(PublicData.programPath);
+            string jsonFromFile = System.IO.File.ReadAllText(Path.Combine(PublicData.programPath, "config.json"));
             Dictionary<string, string>? configFromFile = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonFromFile);
             string dataSourse = configFromFile["dataSource"];
 
-            userID = configFromFile["userID"];
-            userPwd = configFromFile["userPwd"];
+            userID = configFromFile["managerID"];
+            userPwd = configFromFile["managerPwd"];
             db = new OracleHelper(
                 "DATA SOURCE=" + dataSourse + ";" +
                 "USER ID='\"" + userID + "\"';" +
@@ -39,35 +37,37 @@ namespace webapi.Controllers
         [HttpPost("register")]
         public IActionResult RegisterUser([FromBody] JObject userData)
         {
-            return Ok();
-        
-            /*
+            if (db == null)
+            {
+                InitDB();
+            }
+            if (db == null)
+                Console.WriteLine("11111");
+            else
+                Console.WriteLine("22222");
             try
             {
                 // 解析从前端接收的用户数据
                 string readerName = userData["reader_name"].ToString();
                 string phoneNumber = userData["phone_number"].ToString();
                 string email = userData["email"].ToString();
-                string address = "1";
-                //= userData["address"].ToString();
-                string readerType = "1";
-                //= userData["reader_type"].ToString();
-                string account = "1";
-                    //= userData["account"].ToString();
+                string address = "default";
+                string readerType = "default";
+                string account = "default";
                 string password = userData["password"].ToString(); // 应该在前端加密密码
 
                 // 构建SQL查询或调用服务层注册用户
-                string sql = $"INSERT INTO Reader (reader_name, phone_number, email, address, reader_type, account, password) " +
-                             $"VALUES ('{readerName}', '{phoneNumber}', '{email}','{address}', '{readerType}', '{account}',  '{password}')";
-                //address, reader_type, account,
-                //'{address}', '{readerType}', '{account}', 
+                string sql = $"INSERT INTO Reader (reader_id, reader_name, phone_number, email, address, reader_type, account, password) " +
+                             $"VALUES (reader_id_seq.nextval, '{readerName}', '{phoneNumber}', '{email}', '{address}', '{readerType}', '{account}', '{password}')";
+
+                Console.WriteLine(sql);
 
                 db.OracleUpdate(sql);
 
                 return Ok(new
                 {
+                    status = 200,
                     result = true,
-                    msg = "用户注册成功"
                 });
             }
             catch (Exception ex)
@@ -78,7 +78,6 @@ namespace webapi.Controllers
                     msg = "用户注册失败：" + ex.Message
                 });
             }
-            */
         }
 
         /// <summary>
@@ -136,7 +135,7 @@ namespace webapi.Controllers
         /// 获取用户资料 API
         /// </summary>
         /// <param name="reader_id">用户ID</param>
-        [HttpGet("initreader")]
+        [HttpGet("initreader/{reader_id}")]
         public IActionResult GetUserProfile(string reader_id)
         {
             try
