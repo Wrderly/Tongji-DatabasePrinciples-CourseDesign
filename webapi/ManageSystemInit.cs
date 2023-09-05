@@ -164,7 +164,7 @@ namespace Database_CourseDesign
             string createManagerStr =
                 "CREATE USER " + managerID + " IDENTIFIED BY " + managerPwd + " DEFAULT TABLESPACE " + tableSpaceData + " TEMPORARY TABLESPACE " + tableSpaceTemp;
             string grantManagerStr =
-                "GRANT connect,resource TO " + managerID;
+                "GRANT connect,resource,alter TO " + managerID;
 
             adminID = configFromFile["adminID"];
             adminPwd = configFromFile["adminPwd"];
