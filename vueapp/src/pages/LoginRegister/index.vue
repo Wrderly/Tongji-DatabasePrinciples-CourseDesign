@@ -175,13 +175,13 @@ export default {
         return;
       }
       this.registerloading = true;
-      let data = {
-        userName: this.registerMsg.userName,
+          let data = {
+        reader_name: this.registerMsg.userName,
         email: this.registerMsg.email,
-        phone: this.registerMsg.phone,
+        phone_number: this.registerMsg.phone,
         password: this.registerMsg.pwd,
-      };
-      register(JSON.stringify(data)).then(
+          };     
+         register(data).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {

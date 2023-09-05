@@ -1,5 +1,6 @@
 ﻿// See https://aka.ms/new-console-template for more information
 using Database_CourseDesign;
+using Newtonsoft.Json.Serialization;
 using System.IO;
 using webapi;
 
@@ -18,7 +19,10 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddNewtonsoftJson(options =>
+{
+    options.SerializerSettings.ContractResolver = new DefaultContractResolver();
+});
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -44,9 +48,7 @@ app.Run();
 
 
 
-/**/
 //数据库连接测试
 Test test = new Test(PublicData.programPath);
 //test.ConnectTest();
 //test.PrintTableTest();
-/**/

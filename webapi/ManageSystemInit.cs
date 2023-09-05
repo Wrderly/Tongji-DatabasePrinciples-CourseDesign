@@ -172,13 +172,13 @@ namespace Database_CourseDesign
                 "CREATE USER " + adminID + " IDENTIFIED BY " + adminPwd + " DEFAULT TABLESPACE " + tableSpaceData + " TEMPORARY TABLESPACE " + tableSpaceTemp;
             string grantAdminStr = 
                 "GRANT connect TO "+adminID;
-
+            /*
             superAdminID = configFromFile["superAdminID"];
             superAdminPwd = configFromFile["superAdminPwd"];
             string createSuperAdminStr =
                 "CREATE USER " + superAdminID + " IDENTIFIED BY " + superAdminPwd + " DEFAULT TABLESPACE " + tableSpaceData + " TEMPORARY TABLESPACE " + tableSpaceTemp;
             string grantSuperAdminStr =
-                "GRANT connect TO " + superAdminID;
+                "GRANT connect TO " + superAdminID;*/
 
             readerID = configFromFile["readerID"];
             readerPwd = configFromFile["readerPwd"];
@@ -189,7 +189,7 @@ namespace Database_CourseDesign
 
             CreateUser(connection, createManagerStr, grantManagerStr, managerID);
             CreateUser(connection, createAdminStr, grantAdminStr, adminID);
-            CreateUser(connection, createSuperAdminStr, grantSuperAdminStr, superAdminID);
+            //CreateUser(connection, createSuperAdminStr, grantSuperAdminStr, superAdminID);
             CreateUser(connection, createReaderStr, grantReaderStr, readerID);
         }
 

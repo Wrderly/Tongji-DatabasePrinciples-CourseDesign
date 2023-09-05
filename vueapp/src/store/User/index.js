@@ -32,7 +32,7 @@ const actions = {
 const mutations = {
   SETADMININFO(state, data) {
     // 保存管理员用户名
-    state.adminName = data.userName;
+    state.adminName = data.reader_name;
     state.isAdmin = data.isAdmin;
   },
   SETREADERINFO(state, data) {

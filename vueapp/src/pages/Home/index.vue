@@ -33,7 +33,7 @@ export default {
       isAdmin(state) {
         return state.User.isAdmin;
       },
-      userName(state) {
+      reader_name(state) {
         if (this.isAdmin) {
           return state.User.adminName;
         } else {
