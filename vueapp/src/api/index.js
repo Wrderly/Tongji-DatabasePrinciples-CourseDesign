@@ -4,12 +4,12 @@ import requests from "./request";
 // 注册接口
 export const register = (readerInfo) =>
   requests({
-    url: "/register",
+    url: "/UserApi/register",
     method: "post",
     headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(readerInfo),
+        "Content-Type": "application/json",
+      },
+     data: JSON.stringify(readerInfo),
   });
 // 登录接口
 export const login = (readerInfo) =>
