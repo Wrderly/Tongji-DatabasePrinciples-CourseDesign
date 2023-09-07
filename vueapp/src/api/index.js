@@ -193,23 +193,41 @@ export const initReserve = (readerId) =>
     },
       data: JSON.stringify(readerId),
   });
-//// 预约超时接口
-//export const ReserveOvertime = (infoObj) =>
-//    requests({
-//        url: "/UserApi/reserveovertime",
-//        method: "post",
-//        headers: {
-//            "Content-Type": "application/json",
-//        },
-//        data: JSON.stringify(infoObj),
-//    });
-//// 借书超时接口
-//export const BorrowOvertime = (infoObj) =>
-//    requests({
-//        url: "/UserApi/borrowovertime",
-//        method: "post",
-//        headers: {
-//            "Content-Type": "application/json",
-//        },
-//        data: JSON.stringify(infoObj),
-//    });
+//预约超时接口
+export const ReserveOvertime = (infoObj) =>
+    requests({
+        url: "/UserApi/reserveovertime",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(infoObj),
+    });
+// 借书超时接口
+export const BorrowOvertime = (infoObj) =>
+    requests({
+        url: "/UserApi/borrowovertime",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(infoObj),
+    });
+
+// 重新获取管理员信息接口
+export const initAdmin = (adminId) =>
+    requests({
+        url: "/AdminApi/initadmin",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(adminId),
+    });
+
+// 重新获取所有用户信息接口
+export const initReaderList = () =>
+    requests({
+        url: "/AdminApi/initreaderlist",
+        method: "post",
+    });

@@ -256,7 +256,11 @@ export default {
               message: "登录成功！",
               type: "success",
             });
-            if (this.isAdmin) this.$store.dispatch("setAdminInfo", res);
+            if (this.isAdmin) 
+            {
+                this.$store.dispatch("setAdminInfo", res);
+                this.$store.dispatch("initReaderList");
+            }
             else this.$store.dispatch("setReaderInfo", res);
             this.$store.dispatch("initBooksList");
             this.$store.dispatch("initCommentsList");

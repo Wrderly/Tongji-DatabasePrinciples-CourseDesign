@@ -471,7 +471,7 @@ namespace webapi.Controllers
                 }
 
                 // 检查是否正在预约
-                string checkReserveSql = $"SELECT COUNT(*) FROM Reserve WHERE book_id = '{bookId}'";
+                string checkReserveSql = $"SELECT COUNT(*) FROM Reserve WHERE book_id = '{bookId}' AND (message = '已预约' OR message = '借阅中')";
                 DataSet ReserveResult = db.OracleQuery(checkReserveSql);
                 int count = Convert.ToInt32(ReserveResult.Tables[0].Rows[0][0]);
 
@@ -507,8 +507,8 @@ namespace webapi.Controllers
 
 
                 // 插入预约记录
-                string reserveRecordSql = $"INSERT INTO Reserve (book_id, reader_id, reserve_date, message,book_name,author,isbn) " +
-                                         $"VALUES ('{bookId}', '{readerId}', '{reserve_date}', '{state}', '{bookName}', '{author}', '{isbn}')";
+                string reserveRecordSql = $"INSERT INTO Reserve (book_id, reader_id, reserve_date, message) " +
+                                         $"VALUES ('{bookId}', '{readerId}', '{reserve_date}', '{state}')";
 
                 db.OracleUpdate(reserveRecordSql);
 
@@ -543,30 +543,21 @@ namespace webapi.Controllers
                 // 解析从前端接收的用户id
                 string readerId = reserveData["reader_id"].ToString();
 
-                string reserveRecordSql = $"SELECT * FROM Reserve WHERE reader_id = '{readerId}'";
-                DataSet result = db.OracleQuery(reserveRecordSql);
+                // 获取预约记录的 SQL 查询，包括相关书籍信息
+                string reserveRecordSql = $@"SELECT R.*, B.book_name, B.author, B.ISBN
+                                    FROM Reserve R
+                                    JOIN Book B ON R.book_id = B.book_id
+                                    WHERE R.reader_id = '{readerId}'";
+                DataSet reserveRecordResult = db.OracleQuery(reserveRecordSql);
 
-                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                if (reserveRecordResult.Tables.Count > 0 && reserveRecordResult.Tables[0].Rows.Count > 0)
                 {
-                    // 返回查询结果中的所有信息
-                    DataTable dataTable = result.Tables[0];
-                    List<Dictionary<string, string>> reserves = new List<Dictionary<string, string>>();
+                    DataTable reserveRecordDataTable = reserveRecordResult.Tables[0];
 
-                    foreach (DataRow row in dataTable.Rows)
-                    {
-                        Dictionary<string, string> reserve = new Dictionary<string, string>();
-
-                        foreach (DataColumn column in dataTable.Columns)
-                        {
-                            reserve[column.ColumnName] = row[column].ToString();
-                        }
-
-                        reserves.Add(reserve);
-                    }
                     return Ok(new
                     {
-                        status=200,
-                        reserves
+                        status = 200,
+                        reserves = reserveRecordDataTable
                     });
                 }
                 else
@@ -586,8 +577,6 @@ namespace webapi.Controllers
                 });
             }
         }
-
-
 
         /// <summary>
         /// 用户删除预约记录 API
@@ -650,7 +639,6 @@ namespace webapi.Controllers
             try
             {
                 // 解析从前端接收的数据
-                string readerId = reserveData["reader_id"].ToString();
                 string nowTimeString = reserveData["now_time"].ToString();
                 DateTime nowTime = DateTime.ParseExact(nowTimeString, "yyyy-MM-dd HH:mm:ss", null);
 
@@ -669,12 +657,13 @@ namespace webapi.Controllers
                         // 获取预约时间
                         DateTime reserveTime = DateTime.ParseExact(reservedBookRow["reserve_date"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
+                        Console.WriteLine(reservedBookRow);
                         // 计算时间差
                         TimeSpan timeDiff = nowTime - reserveTime;
 
                         // 如果时间差超过7天则视为违约
-                        if (timeDiff.Seconds > 10)
-                        //if (timeDiff.Days > 7)
+                        //if (timeDiff.Seconds > 10)
+                        if (timeDiff.Days > 7)
                         {
                             // 更新消息状态
                             string bookId = reservedBookRow["book_id"].ToString();
@@ -698,6 +687,7 @@ namespace webapi.Controllers
                     // 返回成功消息
                     return Ok(new
                     {
+                        status=200,
                         msg = "处理成功"
                     });
                 }
@@ -720,7 +710,7 @@ namespace webapi.Controllers
             }
         }
 
-
+        
 
         /// <summary>
         /// 用户借书 API
@@ -748,8 +738,8 @@ namespace webapi.Controllers
                 string returnDate = "NULL";
 
                 // 插入借书记录
-                string borrowRecordSql = $"INSERT INTO BorrowRecord (book_id, reader_id, borrow_date, return_date, book_name, author, isbn, message) " +
-                                         $"VALUES ('{bookId}', '{readerId}', '{borrowDate}', '{returnDate}', '{bookName}', '{author}', '{isbn}', '{message}')";
+                string borrowRecordSql = $"INSERT INTO BorrowRecord (book_id, reader_id, borrow_date, return_date, message) " +
+                                         $"VALUES ('{bookId}', '{readerId}', '{borrowDate}', '{returnDate}', '{message}')";
 
                 db.OracleUpdate(borrowRecordSql);
 
@@ -793,30 +783,29 @@ namespace webapi.Controllers
                 // 解析从前端接收的用户id
                 string readerId = borrowData["reader_id"].ToString();
 
-                string borrowRecordSql = $"SELECT * FROM BorrowRecord WHERE reader_id = '{readerId}'";
-                DataSet result = db.OracleQuery(borrowRecordSql);
+                // 获取预约记录的 SQL 查询，包括相关书籍信息
+                string borrowRecordSql = $@"SELECT R.*, B.book_name, B.author, B.ISBN, RU.renew_time
+                                    FROM BorrowRecord R
+                                    JOIN Book B ON R.book_id = B.book_id
+                                    LEFT JOIN Rule RU ON R.book_id = RU.book_id
+                                    WHERE R.reader_id = '{readerId}'";
+                DataSet borrowRecordResult = db.OracleQuery(borrowRecordSql);
 
-                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                if (borrowRecordResult.Tables.Count > 0 && borrowRecordResult.Tables[0].Rows.Count > 0)
                 {
-                    // 返回查询结果中的所有信息
-                    DataTable dataTable = result.Tables[0];
-                    List<Dictionary<string, string>> borrows = new List<Dictionary<string, string>>();
-
-                    foreach (DataRow row in dataTable.Rows)
+                    DataTable borrowRecordDataTable = borrowRecordResult.Tables[0];
+                    // 处理查询结果，添加 renew_time 列
+                    foreach (DataRow row in borrowRecordDataTable.Rows)
                     {
-                        Dictionary<string, string> borrow = new Dictionary<string, string>();
-
-                        foreach (DataColumn column in dataTable.Columns)
+                        if (row["renew_time"] == DBNull.Value)
                         {
-                            borrow[column.ColumnName] = row[column].ToString();
+                            row["renew_time"] = -1;
                         }
-
-                        borrows.Add(borrow);
                     }
                     return Ok(new
                     {
                         status = 200,
-                        borrows
+                        borrows = borrowRecordDataTable
                     });
                 }
                 else
@@ -832,7 +821,7 @@ namespace webapi.Controllers
             {
                 return Ok(new
                 {
-                    status=0,
+                    status = 0,
                     msg = "初始化失败：" + ex.Message
                 });
             }
@@ -843,7 +832,6 @@ namespace webapi.Controllers
         /// 用户还书 API
         /// </summary>
         /// <param name="returnData">包含还书信息</param>
-        /// 允许通过书名、作者名、ISBN号进行模糊查找
         [HttpPost("returnbook")]
         public IActionResult ReturnBook([FromBody] JObject returnData)
         {
@@ -913,8 +901,23 @@ namespace webapi.Controllers
                 string readerId = returnData["reader_id"].ToString();
                 string bookId = returnData["book_id"].ToString();
                 string borrowDate = returnData["borrow_date"].ToString();
+                string old_borrowDate = returnData["old_borrow_date"].ToString();
                 string message = returnData["message"].ToString();
                 string newmessage = "续借中";
+
+                string checkmessageSql = $"SELECT message FROM BorrowRecord WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND borrow_date = '{old_borrowDate}'";
+                DataSet MessageResult = db.OracleQuery(checkmessageSql);
+                string checkmessage = MessageResult.Tables[0].Rows[0]["message"].ToString();
+
+                if (checkmessage == "逾期未还")
+                {
+                    return Ok(new
+                    {
+                        status = 0,
+                        msg = "已逾期，请还书!"
+                    });
+                }
+
                 string checkRenewSql = $"SELECT renew_time FROM Rule WHERE book_id = '{bookId}' AND reader_id = '{readerId}'";
                 DataSet numResult = db.OracleQuery(checkRenewSql);
                 int renew_time = Convert.ToInt32(numResult.Tables[0].Rows[0]["renew_time"]);
@@ -958,14 +961,13 @@ namespace webapi.Controllers
                 return Ok(new
                 {
                     status = 0,
-                    msg = "还书失败：" + ex.Message
+                    msg = "续借失败：" + ex.Message
                 });
             }
         }
 
 
 
-        /*
         /// <summary>
         /// 用户处理超时借书记录 API
         /// </summary>
@@ -980,48 +982,73 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的用户id
-                string readerId = borrowData["reader_id"].ToString();
-                string now_time = borrowData["now_time"].ToString();
+                // 解析从前端接收的数据
+                string nowTimeString = borrowData["now_time"].ToString();
+                DateTime nowTime = DateTime.ParseExact(nowTimeString, "yyyy-MM-dd HH:mm:ss", null);
 
-             
+                // 获取该读者的所有“已借阅”/“续借中”的借阅记录
+                string tempSql = doc.Root.Element("BorrowDate").Value;
+                string sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString());
+
+                DataSet result = db.OracleQuery(sql);
                  
+                
                  
-                 查找所有BorrowRecord中的borrow_date
-                 若时间超过7天（不考虑时分秒）
-                 则将
-                 
-                //删除相应预约记录
-                string DeleteRecordSql = $"DELETE FROM Reserve WHERE reader_id = '{readerId}' AND book_id = '{bookId}'";
-                db.OracleQuery(DeleteRecordSql);
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable borrowBooksTable = result.Tables[0];
 
-                 // 增加违约记录
-                string checkOverdueSql = $"UPDATE Reader SET overdue_times = overdue_times + 1 WHERE reader_id = '{readerId}'";
-                db.OracleQuery(checkOverdueSql);
+                    foreach (DataRow borrowBookRow in borrowBooksTable.Rows)
+                    {
+                        // 获取预约时间
+                        DateTime borrowTime = DateTime.ParseExact(borrowBookRow["borrow_date"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
-                // 更新书籍数量
-                string updateNumSql = $"UPDATE Book SET num = num + 1 WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateNumSql);
+                        Console.WriteLine(borrowBookRow);
+                        // 计算时间差
+                        TimeSpan timeDiff = nowTime - borrowTime;
 
-                // 更新message状态
-                string newmessage = "逾期未还";
-                string updateMessageSql = $"UPDATE BorrowRecord SET message = newmessage WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateMessageSql);
-                 
+                        // 如果时间差超过7天则视为违约
+                        if (timeDiff.Seconds > 10)
+                        //if (timeDiff.Days > 7)
+                        {
+                            // 更新消息状态
+                            string bookId = borrowBookRow["book_id"].ToString();
+                            tempSql = doc.Root.Element("BorrowMsgUpdate").Value;
+                            sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                                         .Replace("{book_id}", bookId);
+                            db.OracleUpdate(sql);
 
+                            // 增加违约记录
+                            tempSql = doc.Root.Element("BorrowReaderODUpdate").Value;
+                            sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString());
+                            db.OracleUpdate(sql);
+                        }
+                    }
 
-
-                return Ok();
+                    // 返回成功消息
+                    return Ok(new
+                    {
+                        status=200,
+                        msg = "处理成功"
+                    });
+                }
+                else
+                {
+                    // 未找到预约记录
+                    return Ok(new
+                    {
+                        msg = "未找到借阅记录"
+                    });
+                }
             }
             catch (Exception ex)
             {
                 return Ok(new
                 {
-                    msg = "删除失败：" + ex.Message
+                    msg = "处理失败：" + ex.Message
                 });
             }
         }
-        */
 
 
         /// <summary>

@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Text.Json;
 using System.Xml.Linq;
+using static System.Reflection.Metadata.BlobBuilder;
 
 
 namespace webapi.Controllers
@@ -20,7 +21,7 @@ namespace webapi.Controllers
 
         private void InitDB()
         {
-            string jsonFromFile = System.IO.File.ReadAllText(PublicData.programPath);
+            string jsonFromFile = System.IO.File.ReadAllText(Path.Combine(PublicData.programPath, "config.json"));
             Dictionary<string, string>? configFromFile = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonFromFile);
             string dataSourse = configFromFile["dataSource"];
 
@@ -30,6 +31,120 @@ namespace webapi.Controllers
                 "DATA SOURCE=" + dataSourse + ";" +
                 "USER ID='\"" + adminID + "\"';" +
                 "PASSWORD='" + adminPwd + "'");
+        }
+
+
+        /// <summary>
+        /// 获取管理员资料 API
+        /// </summary>
+        /// <param name="userData">包含管理员ID</param>
+        [HttpPost("initadmin")]
+        public IActionResult InitAdmin([FromBody] JObject userData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                string admin_id = userData["admin_id"].ToString();
+                // 构建 SQL 查询或调用服务层获取用户资料
+                string sql = $"SELECT * FROM Administrator WHERE admin_id = '{admin_id}'";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 提取用户信息
+                    DataRow data = result.Tables[0].Rows[0];
+
+                    // 构建用户数据对象
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        admin_id = data["admin_id"].ToString(),
+                        admin_name = data["admin_name"].ToString(),
+                        phone_number = data["phone_number"].ToString(),
+                        email = data["email"].ToString()
+                    });
+                }
+                else
+                {
+                    // 用户不存在
+                    return Ok(new
+                    {
+                        msg = "用户不存在"
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取用户资料失败：" + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 获取管理员资料 API
+        /// </summary>
+        /// <param name="userData">包含管理员ID</param>
+        [HttpPost("initreaderlist")]
+        public IActionResult InitreaderList()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 构建 SQL 查询或调用服务层获取用户资料
+                string sql = $"SELECT * FROM Reader";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 提取用户信息
+                    DataTable dataTable = result.Tables[0];
+                    List<Dictionary<string, string>> readers = new List<Dictionary<string, string>>();
+
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        Dictionary<string, string> reader = new Dictionary<string, string>();
+
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            reader[column.ColumnName] = row[column].ToString();
+                        }
+
+                        readers.Add(reader);
+                    }
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        readers
+                    });
+                }
+                else
+                {
+                    // 用户不存在
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取用户资料失败：" + ex.Message
+                });
+            }
         }
 
         [HttpGet("insertbook")]

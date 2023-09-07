@@ -95,9 +95,6 @@
 		reader_id INTEGER,
 		borrow_date varchar(50),
 		return_date varchar(50),
-		book_name VARCHAR(100) NOT NULL,
-		author VARCHAR(100) NOT NULL,
-		ISBN VARCHAR(20) NOT NULL,
 		message varchar(200),
 		FOREIGN KEY (book_id) REFERENCES Book(book_id),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
@@ -109,9 +106,6 @@
 		reader_id INTEGER,
 		reserve_date varchar(50),
 		message varchar(200),
-		book_name VARCHAR(100) NOT NULL,
-		author VARCHAR(100) NOT NULL,
-		ISBN VARCHAR(20) NOT NULL,
 		FOREIGN KEY (book_id) references book(book_id),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)

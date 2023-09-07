@@ -64,7 +64,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { deleteReserve, addBorrow, ReserveOvertime } from "@/api";
+    import { deleteReserve, addBorrow, ReserveOvertime, initReader } from "@/api";
 export default {
   data() {
     return {
@@ -156,12 +156,29 @@ export default {
        let data = {
            reader_id: this.reader_id
        };
-       //let data1 = {
-       //    reader_id: this.reader_id,
-       //    now_time = this.$moment().format("YYYY-MM-DD HH:mm:ss"),
-       //}
-       //ReserveOvertime(data1);
+       let data1 = {
+           reader_id: this.reader_id,
+           now_time : this.$moment().format("YYYY-MM-DD HH:mm:ss"),
+       }
+       ReserveOvertime(data1).then(
+           (res) => {
+               console.log(res);
+           },
+           (err) => {
+               console.log(err.message);
+           }
+       );
        this.$store.dispatch("initReserve", data);
+       this.$store.dispatch("initBooksList");
+       initReader(data).then(
+           (res) => {
+               console.log(res);
+               this.$store.dispatch("setReaderInfo", res);
+           },
+           (err) => {
+               console.log(err.message);
+           }
+       );
   },
 };
 </script>

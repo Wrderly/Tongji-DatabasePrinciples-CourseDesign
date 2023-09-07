@@ -29,7 +29,7 @@ const actions = {
     initReaderList().then(
       (res) => {
         console.log(res);
-        commit("INITREADERLIST", res.data);
+        commit("INITREADERLIST", res.readers);
       },
       (err) => console.log(err.message)
     );
@@ -55,8 +55,9 @@ const mutations = {
       state.readerInfo.overdue_times = data.overdue_times;
       state.isAdmin = data.isAdmin;
   },
-  INITREADERLIST(state, data) {
-    state.readerList = data;
+    INITREADERLIST(state, data) {
+        data = data || [];
+        state.readerList = data;
   },
 };
 

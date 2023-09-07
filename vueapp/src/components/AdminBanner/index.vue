@@ -50,7 +50,7 @@
                 <el-menu-item index="1-2" @click="$router.push('/home/person')">
                     <span>用户管理</span>
                 </el-menu-item>
-                <el-menu-item index="1-3" @click="$router.push('/home/readerinfor')">
+                <el-menu-item index="1-3" @click="$router.push('/home/userinfor')">
                     <span>个人信息</span>
                 </el-menu-item>
                 <el-menu-item index="1-4" @click="toggleUser">

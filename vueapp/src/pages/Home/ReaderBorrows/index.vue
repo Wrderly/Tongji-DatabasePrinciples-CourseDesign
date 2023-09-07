@@ -10,10 +10,10 @@
   >
     <el-table-column type="expand">
       <template slot-scope="props">
-        <el-form label-position="left" class="demo-table-expand">
-            <el-form-item label="借书日期：">
-                <span>{{ props.row.BORROW_DATE }}</span>
-            </el-form-item>
+          <el-form label-position="left" class="demo-table-expand">
+              <el-form-item label="借书日期：">
+                  <span>{{ props.row.BORROW_DATE }}</span>
+              </el-form-item>
               <el-form-item label="还书日期："
                             v-if="props.row.RETURN_DATE != 'NULL'">
                   <span>{{ props.row.RETURN_DATE }}</span>
@@ -21,7 +21,11 @@
               <el-form-item label="图书状态：">
                   <span>{{ props.row.MESSAGE }}</span>
               </el-form-item>
-</el-form>
+              <el-form-item label="续借次数："
+                            v-if="props.row.RENEW_TIME != -1">
+                  <span>{{ props.row.RENEW_TIME }}</span>
+              </el-form-item>
+          </el-form>
       </template>
     </el-table-column>
     <el-table-column prop="ISBN" label="ISBN">
@@ -41,40 +45,34 @@
     </el-table-column>
 
     <el-table-column label="操作" width="200">
-      <template slot-scope="scope">
-        <el-popconfirm
-          title="确认归还该书籍吗？"
-          @confirm="returnBook(scope.$index, scope.row)"
-          v-if="scope.row.MESSAGE != '已还书'"
-        >
-          <el-button
-            size="mini"
-            type="primary"
-            plain
-            style="margin-right: 10px"
-            slot="reference"
-            >还书
-          </el-button>
-        </el-popconfirm>
+        <template slot-scope="scope">
+            <el-popconfirm title="确认归还该书籍吗？"
+                           @confirm="returnBook(scope.$index, scope.row)"
+                           v-if="scope.row.MESSAGE != '已还书'">
+                <el-button size="mini"
+                           type="primary"
+                           plain
+                           style="margin-right: 10px"
+                           slot="reference">
+                    还书
+                </el-button>
+            </el-popconfirm>
 
-        <el-popconfirm
-          title="确认续借该书籍吗？"
-          @confirm="continueBorrowBook(scope.$index, scope.row)"
-          v-if="scope.row.MESSAGE != '已还书'"
-        >
-          <el-button
-            size="mini"
-            type="success"
-            :plain="scope.row.MESSAGE == '借阅中'"
-            slot="reference"
-            >续借
-          </el-button>
-        </el-popconfirm>
+            <el-popconfirm title="确认续借该书籍吗？"
+                           @confirm="continueBorrowBook(scope.$index, scope.row)"
+                           v-if="scope.row.MESSAGE != '已还书'">
+                <el-button size="mini"
+                           type="success"
+                           :plain="scope.row.MESSAGE == '借阅中'"
+                           slot="reference">
+                    续借
+                </el-button>
+            </el-popconfirm>
 
-        <el-button size="mini" disabled v-if="scope.row.MESSAGE == '已还书'"
-          >已还
-        </el-button>
-      </template>
+            <el-button size="mini" disabled v-if="scope.row.MESSAGE == '已还书'">
+                已还
+            </el-button>
+        </template>
     </el-table-column>
   </el-table>
 </template>
@@ -134,6 +132,7 @@ export default {
         book_id: row.BOOK_ID,
           borrow_date: this.$moment().format("YYYY-MM-DD HH:mm:ss"),
           message: row.MESSAGE,
+          old_borrow_date: row.BORROW_DATE,
       };
       continueBorrow(infoObj).then((res) => {
         this.loading = false;
@@ -167,14 +166,11 @@ export default {
     }),
   },
   mounted() {
-
-      /*
       let data = {
            reader_id: this.reader_id,
-           now_time = this.$moment().format("YYYY-MM-DD HH:mm:ss"),
+           now_time : this.$moment().format("YYYY-MM-DD HH:mm:ss"),
        }
        BorrowOvertime(data);
-       */
     this.$store.dispatch(
       "initBorrows",
       { reader_id: this.reader_id }

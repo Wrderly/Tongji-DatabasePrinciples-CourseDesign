@@ -43,7 +43,7 @@
 
 	<!-- 预约:查询发起预约的日期 -->
 	<ReserveDate>
-		SELECT reserve_date
+		SELECT *
 		FROM Reserve
 		WHERE reader_id = '{reader_id}'
 		AND message = '已预约'
@@ -53,19 +53,42 @@
 	<ReserveMsgUpdate>
 		UPDATE Reserve
 		SET message = '逾期未取'
-		WHERE reader_id = '{readerId}'
-		AND book_id = '{bookId}'
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND message = '已预约'
 	</ReserveMsgUpdate>
 	<!-- 预约:更新书籍数量 -->
 	<ReserveBkNUpdate>
 		UPDATE Book
 		SET num = num + 1
-		WHERE book_id = '{bookId}'
+		WHERE book_id = '{book_id}'
 	</ReserveBkNUpdate>
 	<!-- 预约:增加违约记录 -->
 	<ReserveReaderODUpdate>
 		UPDATE Reader
 		SET overdue_times = overdue_times + 1
-		WHERE reader_id = '{readerId}'
+		WHERE reader_id = '{reader_id}'
 	</ReserveReaderODUpdate>
+
+	<!-- 借阅:查询借阅的日期 -->
+	<BorrowDate>
+		SELECT *
+		FROM BorrowRecord
+		WHERE reader_id = '{reader_id}'
+		AND (message = '已借阅' OR message = '续借中')
+	</BorrowDate>
+	<!-- 预约:更新借阅状态 -->
+	<BorrowMsgUpdate>
+		UPDATE BorrowRecord
+		SET message = '逾期未还'
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND (message = '已借阅' OR message = '续借中')
+	</BorrowMsgUpdate>
+	<!-- 预约:增加违约记录 -->
+	<BorrowReaderODUpdate>
+		UPDATE Reader
+		SET overdue_times = overdue_times + 1
+		WHERE reader_id = '{reader_id}'
+	</BorrowReaderODUpdate>
 </Queries>

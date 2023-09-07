@@ -77,7 +77,7 @@
 
 <script>
 import { mapState } from "vuex";
-import { initReader, change_pwd, logout_reader } from "@/api";
+    import { initReader, change_pwd, logout_reader, initAdmin } from "@/api";
 export default {
         name: "UserInfor",
   data() {
@@ -110,7 +110,7 @@ export default {
   },
   mounted() {
     if (this.isAdmin)
-        initReader({ admin_id: this.adminInfo.admin_id }).then(
+        initAdmin({ admin_id: this.adminInfo.admin_id }).then(
         (res) => {
           console.log(res);
                 this.$store.dispatch("SETADMININFO", res);
