@@ -1008,8 +1008,8 @@ namespace webapi.Controllers
                         TimeSpan timeDiff = nowTime - borrowTime;
 
                         // 如果时间差超过7天则视为违约
-                        if (timeDiff.Seconds > 10)
-                        //if (timeDiff.Days > 7)
+                        //if (timeDiff.Seconds > 10)
+                        if (timeDiff.Days > 7)
                         {
                             // 更新消息状态
                             string bookId = borrowBookRow["book_id"].ToString();
