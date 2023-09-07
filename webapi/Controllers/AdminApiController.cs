@@ -18,19 +18,89 @@ namespace webapi.Controllers
         private static OracleHelper db;
         private string? adminID;
         private string? adminPwd;
-
+        XDocument doc = XDocument.Load(PublicData.programPath + "\\AdminApiSQL.xml");
         private void InitDB()
         {
             string jsonFromFile = System.IO.File.ReadAllText(Path.Combine(PublicData.programPath, "config.json"));
             Dictionary<string, string>? configFromFile = JsonSerializer.Deserialize<Dictionary<string, string>>(jsonFromFile);
             string dataSourse = configFromFile["dataSource"];
 
-            adminID = configFromFile["adminID"];
-            adminPwd = configFromFile["adminPwd"];
+            adminID = configFromFile["managerID"];
+            adminPwd = configFromFile["managerPwd"];
             db = new OracleHelper(
                 "DATA SOURCE=" + dataSourse + ";" +
                 "USER ID='\"" + adminID + "\"';" +
                 "PASSWORD='" + adminPwd + "'");
+        }
+
+
+        /// <summary>
+        /// 管理员登录 API
+        /// </summary>
+        /// <param name="userData">包含管理员登录信息的 JSON 数据</param>
+        [HttpPost("login")]
+        public IActionResult AdminLogin([FromBody] JObject userData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 解析从前端接收的登录数据
+                string admin_name = userData["admin_name"].ToString();
+                string password = userData["password"].ToString(); // 应该在前端加密密码
+                
+                string sql = $"SELECT admin_id FROM Administrator WHERE admin_name = '{admin_name}'";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
+                {
+                    // 登录失败
+                    return Ok(new
+                    {
+                        msg = "用户名不存在"
+                    });
+                }
+
+                XDocument doc = XDocument.Load(PublicData.programPath + "\\AdminApiSQL.xml");
+                string tempSql = doc.Root.Element("AdminLogin").Value;
+                sql = tempSql.Replace("{admin_name}", userData["admin_name"].ToString())
+                             .Replace("{password}", userData["password"].ToString());
+                result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 登录成功
+                    DataRow data = result.Tables[0].Rows[0];
+                    return Ok(new
+                    {
+                        status = 200,
+                        admin_id = data["admin_id"].ToString(),
+                        admin_name = data["admin_name"].ToString(),
+                        phone_number = data["phone_number"].ToString(),
+                        email = data["email"].ToString(),
+                        isAdmin = true
+                    });
+                }
+                else
+                {
+                    // 登录失败
+                    return Ok(new
+                    {
+                        msg = "管理员名称或密码错误"
+                    });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "管理员登录失败：" + ex.Message
+                });
+            }
         }
 
 
@@ -86,6 +156,58 @@ namespace webapi.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// 更新管理员密码
+        /// </summary>
+        /// <param name="userData">包含用户ID信息</param>
+        [HttpPost("updatepassword")]
+        public IActionResult UpdatePassword([FromBody] JObject userData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 解析从前端接收的用户数据
+                string adminId = userData["admin_id"].ToString();
+                string oldPassword = userData["oldPassword"].ToString();
+                string newPassword = userData["newPassword"].ToString();
+                string confirmNewPassword = userData["confirmNewPassword"].ToString();
+
+                string sql = $"SELECT password FROM Administrator WHERE admin_id = '{adminId}'";
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables[0].Rows[0]["password"].ToString() != oldPassword)
+                {
+                    return Ok(new
+                    {
+                        msg = "旧密码错误"
+                    });
+                }
+
+                // 构建 SQL 查询或调用服务层更新用户密码
+                sql = $"UPDATE Administrator SET " +
+      $"password = '{newPassword}' " +
+      $"WHERE admin_id = '{adminId}'";
+
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "密码修改失败：" + ex.Message
+                });
+            }
+        }
+
 
         /// <summary>
         /// 获取管理员资料 API

@@ -1,5 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Queries>
+	<!-- 管理名确认以及登录 -->
+	<AdminNameConfirm>
+		SELECT admin_id
+		FROM Administrator
+		WHERE admin_name = '{admin_name}'
+	</AdminNameConfirm>
+	<AdminLogin>
+		SELECT *
+		FROM Administrator
+		WHERE admin_name = '{admin_name}'
+		AND password = '{password}'
+	</AdminLogin>
 	<SelectFromTable>
 		SELECT {columns}
 		FROM {table}

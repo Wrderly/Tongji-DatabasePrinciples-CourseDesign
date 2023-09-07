@@ -43,7 +43,7 @@
               <el-tag size="small">学生用户</el-tag>
           </el-descriptions-item>
       </el-descriptions>
-    <el-button type="primary" @click="showDialog = true" v-show="!isAdmin">重置密码</el-button>
+    <el-button type="primary" @click="showDialog = true">重置密码</el-button>
     <el-dialog title="重置密码" :visible.sync="showDialog">
       <el-form :model="form">
         <el-form-item label="旧密码">
@@ -77,7 +77,8 @@
 
 <script>
 import { mapState } from "vuex";
-    import { initReader, change_pwd, logout_reader, initAdmin } from "@/api";
+    import { initReader, change_pwd, logout_reader, initAdmin, change_pwd_admin } from "@/api";
+    import sha256 from 'crypto-js/sha256';
 export default {
         name: "UserInfor",
   data() {
@@ -146,26 +147,104 @@ export default {
           type: "error",
         });
         return;
-      } else if (this.form.newPassword !== this.form.confirmNewPassword) {
-        this.$message({
-          showClose: true,
-          message: "新密码和确认新密码不一致",
-          type: "error",
-        });
-        return;
-      } else if (this.form.newPassword === this.form.oldPassword) {
+      } else if (this.form.newPassword.length <= 6) {
+              this.$message({
+                  showClose: true,
+                  message: "新密码长度至少为6位",
+                  type: "error",
+              });
+              return;
+          } else if (this.form.newPassword.length >= 18) {
+              this.$message({
+                  showClose: true,
+                  message: "新密码长度最多为18位",
+                  type: "error",
+              });
+              return;
+          } else if (!/[a-z]/.test(this.form.newPassword) || !/[A-Z]/.test(this.form.newPassword)) {
+              this.$message({
+                  showClose: true,
+                  message: "新密码必须包含大、小写字母",
+                  type: "error",
+              });
+              return;
+          } else if (!/\d/.test(this.form.newPassword)) {
+              this.$message({
+                  showClose: true,
+                  message: "新密码必须包含数字",
+                  type: "error",
+              });
+              return;
+          } else if (this.form.newPassword === this.form.oldPassword) {
         this.$message({
           showClose: true,
           message: "新密码不能与旧密码一致",
           type: "error",
         });
         return;
+      }     else if (this.form.newPassword !== this.form.confirmNewPassword) {
+        this.$message({
+          showClose: true,
+          message: "新密码和确认新密码不一致",
+          type: "error",
+        });
+        return;
+      } 
+      let encryptedPassword_oldPassword = sha256(this.form.oldPassword).toString();
+      let encryptedPassword_newPassword = sha256(this.form.newPassword).toString();
+      let encryptedPassword_confirmNewPassword = sha256(this.form.confirmNewPassword).toString();
+      if(this.isAdmin)
+      {
+            let data = {
+          admin_id: this.adminInfo.admin_id,
+        oldPassword: encryptedPassword_oldPassword,
+        newPassword: encryptedPassword_newPassword,
+        confirmNewPassword: encryptedPassword_confirmNewPassword,
+      };
+      change_pwd_admin(data).then(
+        (res) => {
+          console.log(res);
+          if (res.status == 200) {
+            this.$message({
+              showClose: true,
+              message: "密码修改成功！",
+              type: "success",
+            });
+            this.form.oldPassword = "";
+            this.form.newPassword = "";
+            this.form.confirmNewPassword = "";
+            this.showDialog = false;
+          } else {
+            this.form.oldPassword = "";
+            this.form.newPassword = "";
+            this.form.confirmNewPassword = "";
+            this.$message({
+              showClose: true,
+              message: res.msg,
+              type: "error",
+            });
+          }
+        },
+        (err) => {
+          console.log(err.message);
+          this.$message({
+            showClose: true,
+            message: "密码修改失败！",
+            type: "error",
+          });
+          this.form.oldPassword = "";
+          this.form.newPassword = "";
+          this.form.confirmNewPassword = "";
+        }
+      );
       }
-      let data = {
+      else
+      {
+          let data = {
           reader_id: this.readerInfo.reader_id,
-        oldPassword: this.form.oldPassword,
-        newPassword: this.form.newPassword,
-        confirmNewPassword: this.form.confirmNewPassword,
+        oldPassword: encryptedPassword_oldPassword,
+        newPassword: encryptedPassword_newPassword,
+        confirmNewPassword: encryptedPassword_confirmNewPassword,
       };
       change_pwd(data).then(
         (res) => {
@@ -203,6 +282,7 @@ export default {
           this.form.confirmNewPassword = "";
         }
       );
+      }
     },
     logout() {
       let data1 = {

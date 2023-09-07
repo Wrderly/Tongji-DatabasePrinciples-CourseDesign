@@ -109,8 +109,9 @@
 
 <script>
 import axios from "axios";
-import { register, login } from "@/api";
+import { register, login_reader, login_admin } from "@/api";
 import bg from "./images/bg.jpg";
+import sha256 from 'crypto-js/sha256';
 export default {
   name: "LoginRegister",
   data() {
@@ -201,14 +202,14 @@ export default {
                   type: "error",
               });
               return;
-          } else if (this.registerMsg.pwd.length < 6) {
+          } else if (this.registerMsg.pwd.length <= 6) {
               this.$message({
                   showClose: true,
                   message: "密码长度至少为6位",
                   type: "error",
               });
               return;
-          } else if (this.registerMsg.pwd.length > 18) {
+          } else if (this.registerMsg.pwd.length >= 18) {
               this.$message({
                   showClose: true,
                   message: "密码长度最多为18位",
@@ -230,12 +231,13 @@ export default {
               });
               return;
           }
-      this.registerloading = true;
+          this.registerloading = true;
+          let encryptedPassword = sha256(this.registerMsg.pwd).toString();
           let data = {
         reader_name: this.registerMsg.userName,
         email: this.registerMsg.email,
         phone_number: this.registerMsg.phone,
-        password: this.registerMsg.pwd,
+              password: encryptedPassword,
           };     
          register(data).then(
         (res) => {
@@ -297,13 +299,15 @@ export default {
             });
             return;
         }
-      this.loginloading = true;
-      let data = {
-        reader_name: this.loginMsg.userName,
-        password: this.loginMsg.pwd,
-        isAdmin: this.isAdmin,
+        this.loginloading = true;
+        let encryptedPassword = sha256(this.loginMsg.pwd).toString();
+        if(this.isAdmin)
+          {
+              let data = {
+        admin_name: this.loginMsg.userName,
+          password: this.loginMsg.pwd,
       };
-      login(data).then(
+      login_admin(data).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {
@@ -348,6 +352,59 @@ export default {
           });
         }
       );
+          }
+          else
+          {
+              let data = {
+        reader_name: this.loginMsg.userName,
+          password: encryptedPassword,
+      };
+      login_reader(data).then(
+        (res) => {
+          console.log(res);
+          if (res.status == 200) {
+            this.loginMsg.userName = "";
+            this.loginMsg.pwd = "";
+            this.loginloading = false;
+            this.$message({
+              showClose: true,
+              message: "登录成功！",
+              type: "success",
+            });
+            if (this.isAdmin) 
+            {
+                this.$store.dispatch("setAdminInfo", res);
+                this.$store.dispatch("initReaderList");
+            }
+            else this.$store.dispatch("setReaderInfo", res);
+            this.$store.dispatch("initBooksList");
+            this.$store.dispatch("initCommentsList");
+            this.$router.push("/home");
+          } else {
+            this.loginloading = false;
+            this.loginMsg.userName = "";
+            this.loginMsg.pwd = "";
+            this.loginloading = false;
+            this.$message({
+              showClose: true,
+                message: res.msg,
+              type: "error",
+            });
+          }
+        },
+        (err) => {
+          console.log(err.message);
+          this.loginMsg.userName = "";
+          this.loginMsg.pwd = "";
+          this.loginloading = false;
+          this.$message({
+            showClose: true,
+            message: "登录失败！",
+            type: "error",
+          });
+        }
+      );
+          }
     },
   },
 };

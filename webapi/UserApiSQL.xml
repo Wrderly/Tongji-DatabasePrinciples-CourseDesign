@@ -20,20 +20,6 @@
 		WHERE reader_name = '{reader_name}'
 		AND password = '{password}'
 	</UserLogin>
-
-	<!-- 管理名确认以及登录 -->
-	<AdminNameConfirm>
-		SELECT admin_id
-		FROM Administrator
-		WHERE admin_name = '{reader_name}'
-	</AdminNameConfirm>
-	<AdminLogin>
-		SELECT *
-		FROM Administrator
-		WHERE admin_name = '{reader_name}'
-		AND password = '{password}'
-	</AdminLogin >
-
 	<!-- 用户信息选择 -->
 	<UserProfile>
 		SELECT password

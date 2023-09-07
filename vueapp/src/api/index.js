@@ -11,8 +11,8 @@ export const register = (readerInfo) =>
       },
      data: JSON.stringify(readerInfo),
   });
-// 登录接口
-export const login = (readerInfo) =>
+// 用户登录接口
+export const login_reader = (readerInfo) =>
   requests({
       url: "/UserApi/login",
     method: "post",
@@ -21,6 +21,16 @@ export const login = (readerInfo) =>
     },
     data: JSON.stringify(readerInfo),
   });
+// 管理员登录接口
+export const login_admin = (adminInfo) =>
+    requests({
+        url: "/AdminApi/login",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(adminInfo),
+    });
 // 重新获取学生信息接口
 export const initReader = (readerId) =>
   requests({
@@ -230,4 +240,24 @@ export const initReaderList = () =>
     requests({
         url: "/AdminApi/initreaderlist",
         method: "post",
+    });
+// 管理员重置密码
+export const change_pwd_admin = (
+    admin_id,
+    oldPassword,
+    newPassword,
+    confirmNewPassword
+) =>
+    requests({
+        url: "/AdminApi/updatepassword",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(
+            admin_id,
+            oldPassword,
+            newPassword,
+            confirmNewPassword
+        ),
     });

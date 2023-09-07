@@ -101,10 +101,9 @@ namespace webapi.Controllers
         }
 
         /// <summary>
-        /// 用户、管理员登录 API
+        /// 用户登录 API
         /// </summary>
         /// <param name="userData">包含用户登录信息的 JSON 数据</param>
-        /// 用户、管理员登录共用同一接口，根据去剪短传入isadmin判断分支。前端接收数据为reader_name实际上可以是读者也可以是管理员
         [HttpPost("login")]
         public IActionResult UserLogin([FromBody] JObject userData)
         {
@@ -117,106 +116,62 @@ namespace webapi.Controllers
                 // 解析从前端接收的登录数据
                 string reader_name = userData["reader_name"].ToString();
                 string password = userData["password"].ToString(); // 应该在前端加密密码
-                string isadmin = userData["isAdmin"].ToString();
-                if (isadmin == "False")
+
+
+                // 构建 SQL 查询或调用服务层进行用户登录验证
+                string sql = $"SELECT reader_id FROM Reader WHERE reader_name = '{reader_name}'";
+                DataSet result = db.OracleQuery(sql);
+
+                if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
                 {
-                    // 构建 SQL 查询或调用服务层进行用户登录验证
-                    string sql = $"SELECT reader_id FROM Reader WHERE reader_name = '{reader_name}'";
-                    DataSet result = db.OracleQuery(sql);
-
-                    if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
+                    // 登录失败
+                    return Ok(new
                     {
-                        // 登录失败
-                        return Ok(new
-                        {
-                            msg = "用户名不存在"
-                        });
-                    }
+                        msg = "用户名不存在"
+                    });
+                }
 
 
-                    XDocument doc = XDocument.Load(PublicData.programPath + "\\UserApiSQL.xml");
+                XDocument doc = XDocument.Load(PublicData.programPath + "\\UserApiSQL.xml");
 
-                    string tempSql = doc.Root.Element("UserLogin").Value;
+                string tempSql = doc.Root.Element("UserLogin").Value;
 
-                    sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString())
-                                 .Replace("{password}", userData["password"].ToString());
+                sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString())
+                             .Replace("{password}", userData["password"].ToString());
 
-                    //sql = $"SELECT * FROM Reader WHERE reader_name = '{reader_name}' AND password = '{password}'";
+                //sql = $"SELECT * FROM Reader WHERE reader_name = '{reader_name}' AND password = '{password}'";
 
-                    result = db.OracleQuery(sql);
+                result = db.OracleQuery(sql);
 
-                    if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 登录成功
+                    DataRow data = result.Tables[0].Rows[0];
+                    return Ok(new
                     {
-                        // 登录成功
-                        DataRow data = result.Tables[0].Rows[0];
-                        return Ok(new
-                        {
-                            status = 200,
-                            reader_id = data["reader_id"].ToString(),
-                            reader_name = data["reader_name"].ToString(),
-                            phone_number = data["phone_number"].ToString(),
-                            email = data["email"].ToString(),
-                            overdue_times = data["overdue_times"].ToString(),
-                            isAdmin = false
-                        }); 
-                    }
-                    else
-                    {
-                        // 登录失败
-                        return Ok(new
-                        {
-                            msg = "用户名或密码错误"
-                        });
-                    }
+                        status = 200,
+                        reader_id = data["reader_id"].ToString(),
+                        reader_name = data["reader_name"].ToString(),
+                        phone_number = data["phone_number"].ToString(),
+                        email = data["email"].ToString(),
+                        overdue_times = data["overdue_times"].ToString(),
+                        isAdmin = false
+                    });
                 }
                 else
                 {
-                    string sql = $"SELECT admin_id FROM Administrator WHERE admin_name = '{reader_name}'";
-                    
-                    DataSet result = db.OracleQuery(sql);
-
-                    if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
+                    // 登录失败
+                    return Ok(new
                     {
-                        // 登录失败
-                        return Ok(new
-                        {
-                            msg = "用户名不存在"
-                        });
-                    }
-
-                    sql = $"SELECT * FROM Administrator WHERE admin_name = '{reader_name}' AND password = '{password}'";
-
-                    result = db.OracleQuery(sql);
-
-                    if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
-                    {
-                        // 登录成功
-                        DataRow data = result.Tables[0].Rows[0];
-                        return Ok(new
-                        {
-                            status = 200,
-                            admin_id = data["admin_id"].ToString(),
-                            admin_name = data["admin_name"].ToString(),
-                            phone_number = data["phone_number"].ToString(),
-                            email = data["email"].ToString(),
-                            isAdmin = true
-                        });
-                    }
-                    else
-                    {
-                        // 登录失败
-                        return Ok(new
-                        {
-                            msg = "管理员名称或密码错误"
-                        });
-                    }
+                        msg = "用户名或密码错误"
+                    });
                 }
             }
             catch (Exception ex)
             {
                 return Ok(new
                 {
-                    msg = "管理员登录失败：" + ex.Message
+                    msg = "用户登录失败：" + ex.Message
                 });
             }
         }

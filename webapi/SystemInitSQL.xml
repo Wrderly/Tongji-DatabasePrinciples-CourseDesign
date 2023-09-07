@@ -12,7 +12,7 @@
 		phone_number VARCHAR(20),
 		email VARCHAR(100),
 		account VARCHAR(50) NOT NULL,
-		password VARCHAR(50) NOT NULL
+		password VARCHAR(300) NOT NULL
 		)
 	</Query>
 	<Query name="CreateTable1">
@@ -52,7 +52,7 @@
 		address VARCHAR(200),
 		reader_type VARCHAR(50),
 		account VARCHAR(50) NOT NULL,
-		password VARCHAR(50) NOT NULL,
+		password VARCHAR(300) NOT NULL,
 		overdue_times INTEGER,
 		FOREIGN KEY (reader_type) REFERENCES ReaderType(reader_type)
 		)
