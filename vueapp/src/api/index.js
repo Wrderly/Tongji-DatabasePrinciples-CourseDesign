@@ -62,14 +62,14 @@ export const logout_reader = (readerId) =>
     data: JSON.stringify(readerId),
   });
 // 提交反馈
-export const reader_report = (readerId, content) =>
+export const reader_report = (reportInfo) =>
   requests({
       url: "/UserApi/readerreport",
     method: "post",
     headers: {
       "Content-Type": "application/json",
     },
-    data: JSON.stringify(readerId, content),
+      data: JSON.stringify(reportInfo),
   });
 // 评论区接口
 export const initCommentsList = () =>

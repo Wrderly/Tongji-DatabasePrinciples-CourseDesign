@@ -122,7 +122,7 @@
 	<Query name="CreateTable11">
 		CREATE TABLE Report (
 		reader_id INTEGER,
-		report_date DATE,
+		report_date VARCHAR(50),
 		feedback VARCHAR(500),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)

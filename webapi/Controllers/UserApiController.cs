@@ -1069,9 +1069,10 @@ namespace webapi.Controllers
                 // 解析从前端接收的反馈
                 string readerId = reportData["reader_id"].ToString();
                 string feedback = reportData["content"].ToString();
+                string nowTime = reportData["now_time"].ToString();
 
                 string sql = $"INSERT INTO Report (reader_id, feedback, report_date)" +
-                                      $"VALUES ('{readerId}', '{feedback}', SYSDATE)";
+                                      $"VALUES ('{readerId}', '{feedback}', '{nowTime}')";
                 db.OracleUpdate(sql);
 
                 return Ok(new

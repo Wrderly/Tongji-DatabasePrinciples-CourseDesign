@@ -47,6 +47,7 @@ export default {
       let data = {
           reader_id: this.readerInfo.reader_id,
         content: this.textarea,
+        now_time:this.$moment().format("YYYY-MM-DD HH:mm:ss")
       };
       reader_report(data).then(
         (res) => {
@@ -58,6 +59,7 @@ export default {
               message: "反馈成功！",
               type: "success",
             });
+            this.textarea="";
           } else {
             this.loading = false;
             this.$message({

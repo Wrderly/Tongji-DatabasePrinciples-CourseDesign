@@ -54,7 +54,7 @@
             size="mini"
             @click="isAdmin = false"
             plain
-            >学生登录</el-button
+            >用户登录</el-button
           >
           <el-button
             v-else
