@@ -261,3 +261,13 @@ export const change_pwd_admin = (
             confirmNewPassword
         ),
     });
+// 管理员删除用户接口
+export const updateCount = (Obj) =>
+    requests({
+        url: "/AdminApi/updatecount",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(Obj),
+    });

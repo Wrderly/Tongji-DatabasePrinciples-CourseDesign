@@ -31,6 +31,7 @@
 </template>
 
 <script>
+    import { mapState } from "vuex";
 export default {
   name: "Userhome",
   data() {
@@ -46,7 +47,14 @@ export default {
   },
   created() {
     this.run();
-  },
+        },
+        computed: {
+            ...mapState({
+                isAdmin(state) {
+                    return state.User.isAdmin;
+                },
+            }),
+        },
   methods: {
     gotoPage(index) {
       this.currentIndex = index;

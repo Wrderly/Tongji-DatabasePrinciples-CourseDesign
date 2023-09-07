@@ -305,7 +305,7 @@ export default {
           {
               let data = {
         admin_name: this.loginMsg.userName,
-          password: this.loginMsg.pwd,
+          password: encryptedPassword,
       };
       login_admin(data).then(
         (res) => {
@@ -326,7 +326,7 @@ export default {
             }
             else this.$store.dispatch("setReaderInfo", res);
             this.$store.dispatch("initBooksList");
-            this.$store.dispatch("initCommentsList");
+            //this.$store.dispatch("initCommentsList");
             this.$router.push("/home");
           } else {
             this.loginloading = false;

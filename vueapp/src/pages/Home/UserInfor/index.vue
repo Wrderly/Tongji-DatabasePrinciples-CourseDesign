@@ -114,7 +114,7 @@ export default {
         initAdmin({ admin_id: this.adminInfo.admin_id }).then(
         (res) => {
           console.log(res);
-                this.$store.dispatch("SETADMININFO", res);
+          this.$store.dispatch("setAdminInfo", res);
         },
         (err) => {
           console.log(err.message);

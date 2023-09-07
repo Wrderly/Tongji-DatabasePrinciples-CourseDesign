@@ -210,7 +210,7 @@ namespace webapi.Controllers
 
 
         /// <summary>
-        /// 获取管理员资料 API
+        /// 获取用户列表 API
         /// </summary>
         /// <param name="userData">包含管理员ID</param>
         [HttpPost("initreaderlist")]
@@ -268,6 +268,42 @@ namespace webapi.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// 删除用户 API
+        /// </summary>
+        /// <param name="userData">包含用户id</param>
+        [HttpPost("updatecount")]
+        public IActionResult UpdateCount([FromBody] JObject userData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                // 解析从前端接收的用户id
+                string readerId = userData["reader_id"].ToString();
+                string overdue_times = userData["overdue_times"].ToString();
+
+                string UpdateCountSql = $"Update FROM Reader WHERE reader_id = '{readerId}'";
+                db.OracleQuery(UpdateCountSql);
+
+                return Ok(new
+                {
+                    status = 200,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "修改失败：" + ex.Message
+                });
+            }
+        }
+
 
         [HttpGet("insertbook")]
         public IActionResult InsertBook([FromBody] JObject data)
