@@ -144,36 +144,92 @@ export default {
     },
   },
   methods: {
-    sendRegisterMsg() {
-      if (!this.registerMsg.userName) {
-        this.$message({
-          showClose: true,
-          message: "用户名不能为空！",
-          type: "error",
-        });
-        return;
-      } else if (!this.registerMsg.phone) {
-        this.$message({
-          showClose: true,
-          message: "手机号不能为空！",
-          type: "error",
-        });
-        return;
-      } else if (!this.registerMsg.email) {
-        this.$message({
-          showClose: true,
-          message: "邮箱不能为空！",
-          type: "error",
-        });
-        return;
-      } else if (!this.registerMsg.pwd) {
-        this.$message({
-          showClose: true,
-          message: "密码不能为空！",
-          type: "error",
-        });
-        return;
-      }
+      sendRegisterMsg() {
+          // 验证用户名格式
+          if (!this.registerMsg.userName) {
+              this.$message({
+                  showClose: true,
+                  message: "用户名不能为空！",
+                  type: "error",
+              });
+              return;
+          } else if (!/^[a-zA-Z0-9_-]{4,16}$/.test(this.registerMsg.userName)) {
+              this.$message({
+                  showClose: true,
+                  message: "用户名格式应为4~16字符，由大小写字母及数字组成",
+                  type: "error",
+              });
+              return;
+          }
+          // 验证手机号格式
+          if (!this.registerMsg.phone) {
+              this.$message({
+                  showClose: true,
+                  message: "手机号不能为空！",
+                  type: "error",
+              });
+              return;
+          } else if (!/^1[3456789]\d{9}$/.test(this.registerMsg.phone)) {
+              this.$message({
+                  showClose: true,
+                  message: "手机号格式不正确！",
+                  type: "error",
+              });
+              return;
+          }
+          // 验证邮箱格式
+          if (!this.registerMsg.email) {
+              this.$message({
+                  showClose: true,
+                  message: "邮箱不能为空！",
+                  type: "error",
+              });
+              return;
+          } else if (!/^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(this.registerMsg.email)) {
+              this.$message({
+                  showClose: true,
+                  message: "邮箱格式示例:'example@qq.com'",
+                  type: "error",
+              });
+              return;
+          }
+          // 验证密码格式
+          if (!this.registerMsg.pwd) {
+              this.$message({
+                  showClose: true,
+                  message: "密码不能为空！",
+                  type: "error",
+              });
+              return;
+          } else if (this.registerMsg.pwd.length < 6) {
+              this.$message({
+                  showClose: true,
+                  message: "密码长度至少为6位",
+                  type: "error",
+              });
+              return;
+          } else if (this.registerMsg.pwd.length > 18) {
+              this.$message({
+                  showClose: true,
+                  message: "密码长度最多为18位",
+                  type: "error",
+              });
+              return;
+          } else if (!/[a-z]/.test(this.registerMsg.pwd) || !/[A-Z]/.test(this.registerMsg.pwd)) {
+              this.$message({
+                  showClose: true,
+                  message: "密码必须包含大、小写字母",
+                  type: "error",
+              });
+              return;
+          } else if (!/\d/.test(this.registerMsg.pwd)) {
+              this.$message({
+                  showClose: true,
+                  message: "密码必须包含数字",
+                  type: "error",
+              });
+              return;
+          }
       this.registerloading = true;
           let data = {
         reader_name: this.registerMsg.userName,
@@ -193,12 +249,14 @@ export default {
             });
             this.registerMsg.userName = "";
             this.registerMsg.phone = "";
+            this.registerMsg.email = "";
             this.registerMsg.pwd = "";
             this.flag = 0;
           } else {
             this.registerloading = false;
             this.registerMsg.userName = "";
             this.registerMsg.phone = "";
+            this.registerMsg.email = "";
             this.registerMsg.pwd = "";
             this.registerloading = false;
             this.$message({
@@ -218,6 +276,7 @@ export default {
           });
           this.registerMsg.userName = "";
           this.registerMsg.phone = "";
+          this.registerMsg.email = "";
           this.registerMsg.pwd = "";
         }
       );
