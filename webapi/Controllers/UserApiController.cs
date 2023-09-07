@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿//用户api控制器，调用OracleHelper中函数向前端返回数据和状态码。
+//包括部分用户和管理员共用的功能，例如登录、查询书籍等
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Data;
 using System.IO;
 using System.Net;
+using System.Security.Principal;
 using System.Text.Json;
 using System.Xml.Linq;
 
@@ -17,6 +22,7 @@ namespace webapi.Controllers
         private static OracleHelper db;
         private string? userID;
         private string? userPwd;
+        XDocument doc = XDocument.Load(PublicData.programPath + "\\UserApiSQL.xml");
         private void InitDB()
         {
             string jsonFromFile = System.IO.File.ReadAllText(Path.Combine(PublicData.programPath, "config.json"));
@@ -628,11 +634,11 @@ namespace webapi.Controllers
             }
         }
 
-        /*
+
         /// <summary>
-        /// 用户处理超时预约记录 API
+        /// 处理超时预约记录 API
         /// </summary>
-        /// <param name="reserveData">包含预约信息</param>
+        /// <param name="reserveData">包含读者ID和当前时间</param>
         [HttpPost("reserveovertime")]
         public IActionResult ReserveOvertime([FromBody] JObject reserveData)
         {
@@ -643,42 +649,77 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的用户id
+                // 解析从前端接收的数据
                 string readerId = reserveData["reader_id"].ToString();
-                string now_time = reserveData["now_time"].ToString();
-                 
-                 
-                 
-                 查找所有Reserve中的reserve_date
-                 若时间超过7天（不考虑时分秒）
-                 则将
+                string nowTimeString = reserveData["now_time"].ToString();
+                DateTime nowTime = DateTime.ParseExact(nowTimeString, "yyyy-MM-dd HH:mm:ss", null);
 
-                 // 增加违约记录
-                string checkOverdueSql = $"UPDATE Reader SET overdue_times = overdue_times + 1 WHERE reader_id = '{readerId}'";
-                db.OracleQuery(checkOverdueSql);
+                // 获取该读者的所有“已预约”的预约记录
+                string tempSql = doc.Root.Element("ReserveDate").Value;
+                string sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
 
-                // 更新书籍数量
-                string updateNumSql = $"UPDATE Book SET num = num + 1 WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateNumSql);
+                DataSet result = db.OracleQuery(sql);
 
-                // 更新message状态
-                string newmessage = "逾期未取";
-                string updateMessageSql = $"UPDATE Reserve SET message = newmessage WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateMessageSql);
-                 
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable reservedBooksTable = result.Tables[0];
 
+                    foreach (DataRow reservedBookRow in reservedBooksTable.Rows)
+                    {
+                        // 获取预约时间
+                        DateTime reserveTime = DateTime.ParseExact(reservedBookRow["reserve_date"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
-                return Ok();
+                        // 计算时间差
+                        TimeSpan timeDiff = nowTime - reserveTime;
+
+                        // 如果时间差超过7天则视为违约
+                        if (timeDiff.Seconds > 10)
+                        //if (timeDiff.Days > 7)
+                        {
+                            // 更新消息状态
+                            string bookId = reservedBookRow["book_id"].ToString();
+                            tempSql = doc.Root.Element("ReserveMsgUpdate").Value;
+                            sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString())
+                                         .Replace("{book_id}", bookId);
+                            db.OracleUpdate(sql);
+
+                            // 更新书籍数量
+                            tempSql = doc.Root.Element("ReserveBkNUpdate").Value;
+                            sql = tempSql.Replace("{book_id}", bookId);
+                            db.OracleUpdate(sql);
+
+                            // 增加违约记录
+                            tempSql = doc.Root.Element("ReserveReaderODUpdate").Value;
+                            sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
+                            db.OracleUpdate(sql);
+                        }
+                    }
+
+                    // 返回成功消息
+                    return Ok(new
+                    {
+                        msg = "处理成功"
+                    });
+                }
+                else
+                {
+                    // 未找到预约记录
+                    return Ok(new
+                    {
+                        msg = "未找到预约记录"
+                    });
+                }
             }
             catch (Exception ex)
             {
+                // 返回错误消息
                 return Ok(new
                 {
-                    msg = "删除失败：" + ex.Message
+                    msg = "处理失败：" + ex.Message
                 });
             }
         }
-        */
+
 
 
         /// <summary>
