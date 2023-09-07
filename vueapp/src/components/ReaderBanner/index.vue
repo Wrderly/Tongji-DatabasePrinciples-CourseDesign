@@ -24,7 +24,7 @@
         <el-menu-item index="1-1" @click="$router.push('/home/readerreserve')">
           <span>预约记录</span>
         </el-menu-item>
-        <el-menu-item index="1-3" @click="$router.push('/home/search')">
+        <el-menu-item index="1-2" @click="$router.push('/home/search')">
           <span>书籍查找及预约</span>
         </el-menu-item>
       </el-submenu>
@@ -33,7 +33,7 @@
           <i class="el-icon-s-promotion"></i>
           <span>借阅管理</span>
         </template>
-        <el-menu-item index="1-2" @click="$router.push('/home/readerborrows')">
+        <el-menu-item index="1-1" @click="$router.push('/home/readerborrows')">
           <span>借阅记录及续借</span>
         </el-menu-item>
       </el-submenu>
@@ -49,7 +49,7 @@
         <el-menu-item index="1-1" @click="$router.push('/home/readerreport')">
           <span>反馈</span>
         </el-menu-item>
-        <el-menu-item index="1-2" @click="$router.push('/home/readerinfor')">
+        <el-menu-item index="1-2" @click="$router.push('/home/userinfor')">
           <span>个人信息</span>
         </el-menu-item>
         <el-menu-item index="1-3" @click="toggleUser">

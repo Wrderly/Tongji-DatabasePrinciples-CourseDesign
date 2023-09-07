@@ -118,7 +118,7 @@ export default {
       loginloading: false,
       registerloading: false,
       isAdmin: false,
-      flag: 1,
+      flag: 0,
       bg: bg,
       loginMsg: {
         userName: "",
@@ -223,20 +223,28 @@ export default {
       );
     },
     sendLoginMsg() {
-      if (!this.loginMsg.userName) {
-        alert("用户名不能为空");
-        return;
-      } else if (!this.loginMsg.pwd) {
-        alert("密码不能为空");
-        return;
-      }
+        if (!this.loginMsg.userName) {
+            this.$message({
+                showClose: true,
+                message: "用户名不能为空！",
+                type: "error",
+            });
+            return;
+        } else if (!this.loginMsg.pwd) {
+            this.$message({
+                showClose: true,
+                message: "密码不能为空！",
+                type: "error",
+            });
+            return;
+        }
       this.loginloading = true;
       let data = {
-        userName: this.loginMsg.userName,
+        reader_name: this.loginMsg.userName,
         password: this.loginMsg.pwd,
         isAdmin: this.isAdmin,
       };
-      login(JSON.stringify(data)).then(
+      login(data).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {
@@ -260,7 +268,7 @@ export default {
             this.loginloading = false;
             this.$message({
               showClose: true,
-              message: "登录失败！",
+                message: res.msg,
               type: "error",
             });
           }

@@ -21,6 +21,9 @@ Vue.prototype.$moment = timeFormater;
 // 读者侧边栏
 import ReaderBanner from "@/components/ReaderBanner";
 Vue.component(ReaderBanner.name, ReaderBanner);
+// 管理员侧边栏
+import AdminBanner from '@/components/AdminBanner'
+Vue.component(AdminBanner.name, AdminBanner)
 
 Vue.config.productionTip = false;
 

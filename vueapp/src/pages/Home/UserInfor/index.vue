@@ -1,26 +1,49 @@
 <template>
   <div>
-    <el-descriptions title="用户信息" :column="1">
-      <el-descriptions-item label="用户名" v-if="isAdmin">{{
-        adminName
-      }}</el-descriptions-item>
-      <el-descriptions-item label="用户名" v-else>{{
-        readerInfo.readerName
-      }}</el-descriptions-item>
-      <el-descriptions-item label="手机号" v-if="!isAdmin">{{
-        readerInfo.readerPhone
-      }}</el-descriptions-item>
-      <el-descriptions-item label="邮箱" v-if="!isAdmin">{{
+      <el-descriptions title="用户信息" :column="1">
+          <el-descriptions-item label="用户名" v-if="isAdmin">
+              {{
+        adminInfo.admin_name
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="用户名" v-else>
+              {{
+        readerInfo.reader_name
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="手机号" v-if="isAdmin">
+              {{
+        adminInfo.phone_number
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="手机号" v-else>
+              {{
+        readerInfo.phone_number
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="邮箱" v-if="isAdmin">
+              {{
+        adminInfo.email
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="邮箱" v-else>
+              {{
         readerInfo.email
-      }}</el-descriptions-item>
-      <el-descriptions-item label="备注" v-if="isAdmin">
-        <el-tag size="small">管理员</el-tag>
-      </el-descriptions-item>
-      <el-descriptions-item label="备注" v-else>
-        <el-tag size="small">学生用户</el-tag>
-      </el-descriptions-item>
-    </el-descriptions>
-    <el-button type="primary" @click="showDialog = true">重置密码</el-button>
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="违规次数" v-if="!isAdmin">
+              {{
+        readerInfo.overdue_times
+              }}
+          </el-descriptions-item>
+          <el-descriptions-item label="备注" v-if="isAdmin">
+              <el-tag size="small">管理员</el-tag>
+          </el-descriptions-item>
+          <el-descriptions-item label="备注" v-else>
+              <el-tag size="small">学生用户</el-tag>
+          </el-descriptions-item>
+      </el-descriptions>
+    <el-button type="primary" @click="showDialog = true" v-show="!isAdmin">重置密码</el-button>
     <el-dialog title="重置密码" :visible.sync="showDialog">
       <el-form :model="form">
         <el-form-item label="旧密码">
@@ -41,7 +64,7 @@
         <el-button type="primary" @click="resetPassword">确定</el-button>
       </span>
     </el-dialog>
-    <el-button type="danger" @click="showDialog1 = true">注销账户</el-button>
+    <el-button type="danger" @click="showDialog1 = true" v-show="!isAdmin">注销账户</el-button>
     <el-dialog title="注销账户" :visible.sync="showDialog1">
       <span>您确定要注销账户吗？</span>
       <span slot="footer" class="dialog-footer">
@@ -56,7 +79,7 @@
 import { mapState } from "vuex";
 import { initReader, change_pwd, logout_reader } from "@/api";
 export default {
-  name: "ReaderInfor",
+        name: "UserInfor",
   data() {
     return {
       showDialog: false,
@@ -73,28 +96,39 @@ export default {
       isAdmin(state) {
         return state.User.isAdmin;
       },
-      adminName(state) {
-        if (this.isAdmin) {
-          return state.User.adminName;
-        } else return "";
+        adminInfo(state) {
+        if (this.isAdmin) 
+            return state.User.adminInfo;
+        else return {};
       },
       readerInfo(state) {
-        if (!this.isAdmin) return state.User.readerInfo;
+          if (!this.isAdmin)
+              return state.User.readerInfo;
         else return {};
       },
     }),
   },
   mounted() {
-    if (!this.isAdmin)
-      initReader(JSON.stringify({ readerId: this.readerInfo.readerId })).then(
+    if (this.isAdmin)
+        initReader({ admin_id: this.adminInfo.admin_id }).then(
         (res) => {
           console.log(res);
-          this.$store.dispatch("setReaderInfo", res);
+                this.$store.dispatch("SETADMININFO", res);
         },
         (err) => {
           console.log(err.message);
         }
-      );
+          );
+      else
+        initReader({ reader_id: this.readerInfo.reader_id }).then(
+            (res) => {
+                console.log(res);
+                this.$store.dispatch("setReaderInfo", res);
+            },
+            (err) => {
+                console.log(err.message);
+            }
+        );
   },
   methods: {
     resetPassword() {
@@ -128,12 +162,12 @@ export default {
         return;
       }
       let data = {
-        readerId: this.readerInfo.readerId,
+          reader_id: this.readerInfo.reader_id,
         oldPassword: this.form.oldPassword,
         newPassword: this.form.newPassword,
         confirmNewPassword: this.form.confirmNewPassword,
       };
-      change_pwd(JSON.stringify(data)).then(
+      change_pwd(data).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {
@@ -172,9 +206,9 @@ export default {
     },
     logout() {
       let data1 = {
-        readerId: this.readerInfo.readerId,
+          reader_id: this.readerInfo.reader_id,
       };
-      logout_reader(JSON.stringify(data1)).then(
+      logout_reader(data1).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {
@@ -183,7 +217,8 @@ export default {
               message: "用户注销成功！",
               type: "success",
             });
-            this.showDialog1 = false;
+              this.showDialog1 = false;
+              this.$router.push("/LoginRegister");
           } else {
             this.$message({
               showClose: true,

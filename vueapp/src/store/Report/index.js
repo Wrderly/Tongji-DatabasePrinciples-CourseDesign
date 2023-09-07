@@ -13,7 +13,7 @@ const actions = {
     },
     initStuReport({commit},data){
         initStuReport(qs.stringify(data)).then(res=>{
-            console.log('学生举报记录',res);
+            console.log('学生反馈记录',res);
             commit('INITSTUREPORT',res.data)
         },err=>{
             console.log(err.message);

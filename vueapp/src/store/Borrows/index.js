@@ -23,11 +23,12 @@ const actions = {
         commit('INITBORROWSLIST',res.data)
         },err=>console.log(err.message))
     },
-    initBorrows({commit},data){
-        console.log('borrow',data);
-        initBorrows(data).then(res=>{
+    initBorrows({ commit }, readerObj) {
+        console.log(readerObj);
+        let newObj = readerObj
+        initBorrows(newObj).then(res=>{
             console.log(res);
-        commit('INITBORROWS',res.data)
+            commit('INITBORROWS', res.borrows)
         },err=>{
             console.log(err.message);
         })
@@ -41,7 +42,8 @@ const mutations = {
     },
     INITBORROWS(state,data){
         // 读者保存自己的记录
-        state.borrows = data
+        data = data || [];
+        state.borrows = data;
     }
 }
 

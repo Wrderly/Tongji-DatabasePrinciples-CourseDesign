@@ -8,10 +8,14 @@ import Home from "@/pages/Home";
 import Userhome from "@/pages/Home/Userhome";
 import SearchBooks from "@/pages/Home/SearchBooks";
 import ReaderBorrows from "@/pages/Home/ReaderBorrows";
-import ReaderRserve from "@/pages/Home/ReaderRserve";
+import ReaderReserve from "@/pages/Home/ReaderReserve";
 import Comment from "@/pages/Home/Comment";
 import ReaderReport from "@/pages/Home/ReaderReport";
-import ReaderInfor from "@/pages/Home/ReaderInfor";
+import UserInfor from "@/pages/Home/UserInfor";
+import Person from "@/pages/Home/Person";
+import Schedule from "@/pages/Home/Schedule";
+import AdminReport from '@/pages/Home/AdminReport'
+
 
 export default new VueRouter({
   routes: [
@@ -33,7 +37,7 @@ export default new VueRouter({
         },
         {
           //    主页介绍
-          path: "Userhome",
+          path: "userhome",
           component: Userhome,
         },
         {
@@ -55,7 +59,7 @@ export default new VueRouter({
         {
           //    读者预约记录
           path: "readerreserve",
-          component: ReaderRserve,
+          component: ReaderReserve,
         },
         {
           //     读者举报反馈
@@ -64,9 +68,24 @@ export default new VueRouter({
         },
         {
           //     读者个人信息
-          path: "ReaderInfor",
-          component: ReaderInfor,
-        },
+            path: "userinfor",
+            component: UserInfor,
+          },
+          {
+              //     人员管理
+              path: "person",
+              component: Person,
+          },
+          {
+              //     排班表
+              path: "schedule",
+              component: Schedule,
+          },
+          {
+              //     管理员反馈
+              path: "adminreport",
+              component: AdminReport,
+          }
       ],
     },
   ],

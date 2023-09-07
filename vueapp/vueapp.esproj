@@ -17,4 +17,10 @@
   <ItemGroup>
     <None Remove="src\style\**" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="src\components\AdminBanner\" />
+    <Folder Include="src\pages\Home\Schedule\" />
+    <Folder Include="src\pages\Home\Person\" />
+    <Folder Include="src\pages\Home\AdminReport\" />
+  </ItemGroup>
 </Project>

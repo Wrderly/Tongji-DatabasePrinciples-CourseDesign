@@ -26,7 +26,6 @@
 <script>
 import { mapState } from "vuex";
 import { reader_report } from "@/api";
-import axios from "axios";
 export default {
   name: "ReaderReport",
   data() {
@@ -46,10 +45,10 @@ export default {
     sendreport() {
       this.loading = true;
       let data = {
-        readerId: this.readerInfo.readerId,
+          reader_id: this.readerInfo.reader_id,
         content: this.textarea,
       };
-      reader_report(JSON.stringify(data)).then(
+      reader_report(data).then(
         (res) => {
           console.log(res);
           if (res.status == 200) {
@@ -87,7 +86,7 @@ export default {
 .wrap {
   position: relative;
   .textarea {
-    // position: absolute;
+    //position: absolute;
     margin-top: 20px;
   }
 

@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Queries>
+	<UserLogin>
+    SELECT *
+    FROM Reader
+    WHERE reader_name = '{reader_name}'
+    AND password = '{password}'
+  </UserLogin>
+</Queries>
