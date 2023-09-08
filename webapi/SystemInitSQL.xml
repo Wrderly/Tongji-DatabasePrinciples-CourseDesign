@@ -143,9 +143,49 @@
 		reader_id INTEGER,
 		book_id INTEGER,
 		review_text VARCHAR(200),
-		review_date DATE,
+		review_date VARCHAR(50),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id),
 		FOREIGN KEY (book_id) REFERENCES Book(book_id)
 		)
+	</Query>
+	<Query name="CreateSeq0">
+		CREATE SEQUENCE reader_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq1">
+		CREATE SEQUENCE book_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq2">
+		CREATE SEQUENCE supplier_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq3">
+		CREATE SEQUENCE review_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq4">
+		CREATE SEQUENCE purchase_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
 	</Query>
 </Queries>

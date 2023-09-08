@@ -13,10 +13,11 @@ import Comment from "../pages/Home/Comment/index.vue";
 import ReaderReport from "../pages/Home/ReaderReport/index.vue";
 import UserInfor from "../pages/Home/UserInfor/index.vue";
 import Person from "../pages/Home/Person/index.vue";
-import Schedule from "../pages/Home/Schedule/index.vue";
 import AdminReport from "../pages/Home/AdminReport/index.vue";
 import AdminReserve from "../pages/Home/AdminReserve/index.vue";
 import AdminBorrows from "../pages/Home/AdminBorrows/index.vue";
+import BuyBook from "../pages/Home/BuyBook/index.vue";
+import SupplierInfor from "../pages/Home/SupplierInfor/index.vue";
 
 
 export default new VueRouter({
@@ -79,11 +80,6 @@ export default new VueRouter({
               component: Person,
           },
           {
-              //     排班表
-              path: "schedule",
-              component: Schedule,
-          },
-          {
               //     管理员反馈
               path: "adminreport",
               component: AdminReport,
@@ -97,6 +93,16 @@ export default new VueRouter({
               //     管理员借书记录
               path: "adminborrows",
               component: AdminBorrows,
+          },
+          {
+              //     管理员购买记录
+              path: "buybook",
+              component: BuyBook,
+          },
+          {
+              //     供应商记录
+              path: "supplierinfor",
+              component: SupplierInfor,
           }
       ],
     },

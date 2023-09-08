@@ -21,4 +21,16 @@
 		INSERT INTO book (book_id, num, ISBN, book_name, author, publisher, publication_date, introduction, cover_picture, price, subject_type, collection_type)
 		VALUES ('{book_id}', '{num}', '{ISBN}', '{book_name}', '{author}', '{publisher}', '{publication_date}', '{introduction}', '{cover_picture}', '{price}', '{subject_type}', '{collection_type}')
 	</InsertIntoBook>
+
+	<!-- 所有购买记录 -->
+	<AllPurchaseRecord>
+		SELECT *
+		FROM PurchaseRecord
+	</AllPurchaseRecord>
+
+	<!-- 所有供应商 -->
+	<AllSupplier>
+		SELECT *
+		FROM Supplier
+	</AllSupplier>
 </Queries>

@@ -19,9 +19,11 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="src\components\AdminBanner\" />
-    <Folder Include="src\pages\Home\Schedule\" />
+    <Folder Include="src\pages\Home\BuyBook\" />
     <Folder Include="src\pages\Home\Person\" />
     <Folder Include="src\pages\Home\AdminReserve\" />
     <Folder Include="src\pages\Home\AdminBorrows\" />
+    <Folder Include="src\pages\Home\SupplierInfor\" />
+    <Folder Include="src\store\Suppliers\" />
   </ItemGroup>
 </Project>

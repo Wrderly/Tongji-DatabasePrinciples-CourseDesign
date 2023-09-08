@@ -71,6 +71,13 @@
 		Report WHERE
 		reader_id = '{reader_id}'
 	</DelReport>
+
+	<!-- 注销:删除所有评论记录 -->
+	<DelComments>
+		DELETE FROM
+		Review WHERE
+		reader_id = '{reader_id}'
+	</DelComments>
 	
 	<!-- 注销:销户 -->
 	<DelReader>
@@ -300,4 +307,25 @@
 		INSERT INTO Report (reader_id, feedback, report_date) 
 		VALUES ('{reader_id}', '{feedback}', '{report_date}')
 	</InsertReport>
+
+	<!-- 评论:查询评论列表 -->
+	<CommentsInfo>
+		SELECT R.*, RE.reader_name
+		FROM Review R
+		JOIN Reader RE ON R.reader_id = RE.reader_id
+		WHERE R.book_id = '{book_id}'
+	</CommentsInfo>
+
+	<!-- 插入书评 -->
+	<InsertReview>
+		INSERT INTO Review (review_id, reader_id, book_id, review_text, review_date)
+		VALUES (review_id_seq.nextval, {reader_id}, {book_id}, '{review_text}', '{review_date}')
+	</InsertReview>
+
+	<!-- 删除书评 -->
+	<DeleteReview>
+		DELETE
+		FROM Review
+		WHERE review_id = '{review_id}'
+	</DeleteReview>
 </Queries>

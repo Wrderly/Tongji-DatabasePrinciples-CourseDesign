@@ -35,7 +35,7 @@
     </el-table-column>
     <el-table-column prop="bookName" label="书籍名称">
         <template slot-scope="props">
-            <span>{{ props.row.BOOK_NAME }}</span>
+            <span>《{{ props.row.BOOK_NAME }}》</span>
         </template>
     </el-table-column>
     <el-table-column prop="author" label="图书作者">

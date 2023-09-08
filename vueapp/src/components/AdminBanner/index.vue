@@ -24,36 +24,37 @@
             </el-submenu>
             <el-submenu index="3">
                 <template slot="title">
-                    <i class="el-icon-s-promotion"></i>
+                    <i class="el-icon-reading"></i>
                     <span>用户借阅管理</span>
                 </template>
                 <el-menu-item index="1-1" @click="$router.push('/home/adminborrows')">
                     <span>用户借阅逾期</span>
                 </el-menu-item>
             </el-submenu>
-            <el-menu-item index="4" @click="$router.push('/home/comment')">
-                <i class="el-icon-s-comment"></i>
-                <span slot="title">书籍评论</span>
+            <el-menu-item index="4" @click="$router.push('/home/adminreport')">
+                <i class="el-icon-chat-line-round"></i>
+                <span slot="title">用户反馈</span>
             </el-menu-item>
-            <el-menu-item index="5" @click="$router.push('/home/schedule')">
-                <i class="el-icon-document-copy"></i>
-                <span slot="title">排班表</span>
+            <el-menu-item index="5" @click="$router.push('/home/buybook')">
+                <i class="el-icon-shopping-cart-full"></i>
+                <span slot="title">书籍购买</span>
             </el-menu-item>
-            <el-submenu index="6">
+            <el-menu-item index="6" @click="$router.push('/home/supplierinfor')">
+                <i class="el-icon-s-data"></i>
+                <span slot="title">供应商信息</span>
+            </el-menu-item>
+            <el-submenu index="7">
                 <template slot="title">
-                    <i class="el-icon-user"></i>
+                    <i class="el-icon-user-solid"></i>
                     <span>用户</span>
                 </template>
-                <el-menu-item index="1-1" @click="$router.push('/home/adminreport')">
-                    <span>用户反馈</span>
-                </el-menu-item>
-                <el-menu-item index="1-2" @click="$router.push('/home/person')">
+                <el-menu-item index="1-1" @click="$router.push('/home/person')">
                     <span>用户管理</span>
                 </el-menu-item>
-                <el-menu-item index="1-3" @click="$router.push('/home/userinfor')">
+                <el-menu-item index="1-2" @click="$router.push('/home/userinfor')">
                     <span>个人信息</span>
                 </el-menu-item>
-                <el-menu-item index="1-4" @click="toggleUser">
+                <el-menu-item index="1-3" @click="toggleUser">
                     <span slot="title">退出账号</span>
                 </el-menu-item>
             </el-submenu>

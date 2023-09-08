@@ -20,26 +20,13 @@
                 <el-form label-position="left" class="demo-table-expand">
                     <el-form-item label="书籍介绍：">
                         <span>{{ props.row.INTRODUCTION }}</span>
-                        <br>
-                        <el-popconfirm title="确认修改该书籍吗？"
-               v-if="isAdmin"
-               style="float: left;"
-               @confirm="ChangeBookInfo(props.row)">
-    <el-button size="mini" type="primary" slot="reference">修改</el-button>
-</el-popconfirm>
-                        <el-popconfirm title="确认删除该书籍吗？"
-                                       v-if="isAdmin"
-                                       style="float: right;"
-                                       @confirm="delBook(props.row)">
-                            &nbsp;<el-button size="mini" type="danger" slot="reference">删除书籍</el-button>
-                        </el-popconfirm>
                     </el-form-item>
                 </el-form>
             </template>
         </el-table-column>
         <el-table-column sortable label="图书名称" prop="book_name">
             <template slot-scope="props">
-                <span>{{ props.row.BOOK_NAME }}</span>
+                <span>《{{ props.row.BOOK_NAME }}》</span>
             </template>
         </el-table-column>
         <el-table-column sortable label="图书作者" prop="author">
@@ -70,6 +57,27 @@
                            @click="bookReserve(scope.$index, scope.row)">预约</el-button>
             </template>
         </el-table-column>
+        <el-table-column label="操作" v-if="isAdmin">
+            <template slot-scope="scope">
+                <el-button size="mini"
+                           type="primary"
+                           plain
+                           @click="changeBookInfo(scope.$index, scope.row)">修改</el-button>
+                <br>
+                <el-button size="mini"
+                           type="danger"
+                           plain
+                           @click="bookDelete(scope.$index, scope.row)">删除</el-button>
+            </template>
+        </el-table-column>
+        <el-table-column label="评论">
+            <template slot-scope="scope">
+                <el-button size="mini"
+                           type="success"
+                           plain
+                           @click="bookComments(scope.$index, scope.row)">评论</el-button>
+            </template>
+        </el-table-column>
     </el-table>
   </div>
 </template>
@@ -80,7 +88,7 @@ import {
   addReserve,
   searchBook,
   changeBookInfo,
-  delBook,
+  bookDelete,
 } from "@/api";
 export default {
   name: "SearchBooks",
@@ -164,6 +172,10 @@ export default {
           console.log(err.message);
         }
       );
+    },
+    bookComments(index, row){
+        this.$store.dispatch("initCommentsList", row.BOOK_ID);
+        this.$router.push({ path: "/home/comment", query: { BOOK_ID: row.BOOK_ID } });
     },
     clear() {
       this.flag = 0;

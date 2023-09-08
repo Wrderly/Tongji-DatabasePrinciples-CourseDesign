@@ -13,22 +13,22 @@
         </el-table-column>
         <el-table-column prop="reader_id" label="读者ID">
             <template slot-scope="props">
-                <span>{{ props.row.READER_ID }}</span>
+                <span style="display: block; text-align: center;">{{ props.row.READER_ID }}</span>
             </template>
         </el-table-column>
         <el-table-column prop="book_id" label="书籍ID">
             <template slot-scope="props">
-                <span>{{ props.row.BOOK_ID }}</span>
+                <span style="display: block; text-align: center;">{{ props.row.BOOK_ID }}</span>
             </template>
         </el-table-column>
         <el-table-column prop="book_name" label="书籍名称">
             <template slot-scope="props">
-                <span>{{ props.row.BOOK_NAME }}</span>
+                <span style="display: block; text-align: center;">《{{ props.row.BOOK_NAME }}》</span>
             </template>
         </el-table-column>
         <el-table-column prop="author" label="书籍作者">
             <template slot-scope="props">
-                <span>{{ props.row.AUTHOR }}</span>
+                <span style="display: block; text-align: center;">{{ props.row.AUTHOR }}</span>
             </template>
         </el-table-column>
     </el-table>

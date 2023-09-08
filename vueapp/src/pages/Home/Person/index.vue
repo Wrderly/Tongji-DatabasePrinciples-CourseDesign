@@ -6,6 +6,11 @@
               element-loading-text="正在处理..."
               element-loading-spinner="el-icon-loading"
               element-loading-background="rgba(0, 0, 0, 0.8)">
+        <el-table-column prop="READER_ID" label="用户ID">
+            <template slot-scope="props">
+                <span>{{ props.row.READER_ID }}</span>
+            </template>
+        </el-table-column>
         <el-table-column prop="READER_NAME" label="用户名">
             <template slot-scope="props">
                 <span>{{ props.row.READER_NAME }}</span>

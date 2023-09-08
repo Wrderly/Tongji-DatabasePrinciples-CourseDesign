@@ -10,6 +10,7 @@ import Comments from './Comments'
 import Borrows from './Borrows'
 import Reserve from './Reserve'
 import Report from './Report'
+import Suppliers from './Suppliers'
 
 export default new Vuex.Store({
     modules:{
@@ -18,12 +19,13 @@ export default new Vuex.Store({
         Comments,
         Borrows,
         Reserve,
-        Report
+        Report,
+        Suppliers
     },
     plugins: [
         createPersistedState({
             storage: window.sessionStorage,
-            paths: ["Books", "User","Borrows","Reserve"]
+            paths: ["Books", "User", "Borrows", "Reserve", "Suppliers"]
         })
     ]
 })

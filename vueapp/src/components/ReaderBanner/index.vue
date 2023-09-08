@@ -30,29 +30,26 @@
       </el-submenu>
       <el-submenu index="3">
         <template slot="title">
-          <i class="el-icon-s-promotion"></i>
+          <i class="el-icon-reading"></i>
           <span>借阅管理</span>
         </template>
         <el-menu-item index="1-1" @click="$router.push('/home/readerborrows')">
           <span>借阅记录及续借</span>
         </el-menu-item>
       </el-submenu>
-      <el-menu-item index="4" @click="$router.push('/home/comment')">
-        <i class="el-icon-s-comment"></i>
-        <span>书籍评论</span>
+      <el-menu-item index="4" @click="$router.push('/home/readerreport')">
+        <i class="el-icon-chat-line-round"></i>
+        <span>反馈</span>
       </el-menu-item>
       <el-submenu index="5">
         <template slot="title">
-          <i class="el-icon-user"></i>
+          <i class="el-icon-user-solid"></i>
           <span>用户</span>
         </template>
-        <el-menu-item index="1-1" @click="$router.push('/home/readerreport')">
-          <span>反馈</span>
-        </el-menu-item>
-        <el-menu-item index="1-2" @click="$router.push('/home/userinfor')">
+        <el-menu-item index="1-1" @click="$router.push('/home/userinfor')">
           <span>个人信息</span>
         </el-menu-item>
-        <el-menu-item index="1-3" @click="toggleUser">
+        <el-menu-item index="1-2" @click="toggleUser">
           <span slot="title">退出账号</span>
         </el-menu-item>
       </el-submenu>

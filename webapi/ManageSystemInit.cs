@@ -245,6 +245,29 @@ namespace Database_CourseDesign
                     }
                 }
             }
+            // 创建序列
+            for (int i = 0; i < 5; i++)
+            {
+                try
+                {
+                    string seqName = "CreateSeq" + i.ToString();
+                    string sql = doc.Descendants("Query").Where(x => (string)x.Attribute("name") == seqName).FirstOrDefault()?.Value;
+                    OracleCommand command = new OracleCommand(sql, connection);
+                    command.ExecuteNonQuery();
+                    Console.WriteLine(seqName + " 创建成功");
+                }
+                catch (OracleException ex)
+                {
+                    if (ex.Code == 955)
+                    {
+                        Console.WriteLine("序列已存在: " + ex.Message);
+                    }
+                    else
+                    {
+                        Console.WriteLine("创建序列失败: " + ex.Message);
+                    }
+                }
+            }
         }
 
         private void InitRight(OracleConnection connection, string userID)

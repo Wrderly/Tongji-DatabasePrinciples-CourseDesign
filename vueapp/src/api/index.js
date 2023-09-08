@@ -82,29 +82,19 @@ export const reader_report = (reportInfo) =>
       data: JSON.stringify(reportInfo),
   });
 // 评论区接口
-export const initCommentsList = () =>
+export const initCommentsList = (BOOKobj) =>
   requests({
-      url: "/UserApi/comments",
+      url: "/UserApi/initcommentslist",
     method: "post",
     headers: {
       "Content-Type": "application/json",
-    },
+      },
+      data: JSON.stringify(BOOKobj),
   });
-  /*
-// 书籍接口
-export const initBooksList = () =>
-  requests({
-      url: "/UserApi/books",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  */
 // 添加评论接口
 export const addComment = (dataObj) =>
   requests({
-      url: "/UserApi/addcomment",
+      url: "/UserApi/addreview",
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -114,7 +104,7 @@ export const addComment = (dataObj) =>
 // 删除评论接口
 export const auditComment = (infoObj) =>
   requests({
-      url: "/UserApi/auditcomment",
+      url: "/UserApi/deletereview",
     method: "post",
     headers: {
       "Content-Type": "application/json",
@@ -289,3 +279,32 @@ export const initBorrowslist = () =>
         url: "/AdminApi/initborrowslist",
         method: "post",
     });
+// 供应商接口
+export const initSupplierList = () =>
+    requests({
+        url: "/AdminApi/initsupplierlist",
+        method: "post",
+    });
+
+
+
+//// 修改书接口
+//export const searchBook = (bookNameObj) =>
+//    requests({
+//        url: "/AdminApi/searchBook",
+//        method: "post",
+//        headers: {
+//            "Content-Type": "application/json",
+//        },
+//        data: JSON.stringify(bookNameObj),
+//    });
+//// 删除书接口
+//export const searchBook = (bookNameObj) =>
+//    requests({
+//        url: "/AdminApi/searchBook",
+//        method: "post",
+//        headers: {
+//            "Content-Type": "application/json",
+//        },
+//        data: JSON.stringify(bookNameObj),
+//    });

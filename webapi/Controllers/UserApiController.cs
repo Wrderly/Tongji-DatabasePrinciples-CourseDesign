@@ -333,6 +333,11 @@ namespace webapi.Controllers
                     sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                     db.OracleUpdate(sql);
 
+                    // 删除该读者的所有评论记录
+                    tempSql = doc.Root.Element("DelComments").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    db.OracleUpdate(sql);
+
                     // 注销用户
                     tempSql = doc.Root.Element("DelReader").Value;
                     sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
@@ -1095,6 +1100,131 @@ namespace webapi.Controllers
             }
         }
 
+        /// <summary>
+        /// 用户评论记录 API
+        /// </summary>
+        /// <param name="commentsData">包含评论信息</param>
+        [HttpPost("initcommentslist")]
+        public IActionResult InitCommentsList([FromBody] JObject commentsData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 获取预约记录的 SQL 查询，包括相关书籍信息
+                tempSql = doc.Root.Element("CommentsInfo").Value;
+                sql = tempSql.Replace("{book_id}", commentsData["book_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable reserveRecordDataTable = result.Tables[0];
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        comments = reserveRecordDataTable
+                    });
+                }
+                else
+                {
+                    // 没有记录
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = 0,
+                    msg = "初始化失败：" + ex.Message
+                });
+            }
+        }
+
+
+
+
+        /// <summary>
+        /// 添加图书评论 API
+        /// </summary>
+        /// <param name="reviewData">包含评论信息</param>
+        [HttpPost("addreview")]
+        public IActionResult AddReview([FromBody] JObject reviewData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                tempSql = doc.Root.Element("InsertReview").Value;
+                sql = tempSql.Replace("{reader_id}", reviewData["reader_id"].ToString())
+                             .Replace("{book_id}", reviewData["book_id"].ToString())
+                             .Replace("{review_text}", reviewData["review_text"].ToString())
+                             .Replace("{review_date}", reviewData["now_time"].ToString());
+                // 执行插入操作
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                    msg = "评论添加成功"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "评论添加失败：" + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 删除图书评论 API
+        /// </summary>
+        /// <param name="reviewData">包含评论信息</param>
+        [HttpPost("deletereview")]
+        public IActionResult DeleteReview([FromBody] JObject reviewData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                tempSql = doc.Root.Element("DeleteReview").Value;
+                sql = tempSql.Replace("{review_id}", reviewData["review_id"].ToString());
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                    msg = "评论删除成功"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "评论删除失败：" + ex.Message
+                });
+            }
+        }
 
     }
 }

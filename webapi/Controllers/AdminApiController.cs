@@ -63,8 +63,6 @@ namespace webapi.Controllers
                         msg = "用户名不存在"
                     });
                 }
-
-                XDocument doc = XDocument.Load(PublicData.programPath + "\\AdminApiSQL.xml");
                 string tempSql = doc.Root.Element("AdminLogin").Value;
                 sql = tempSql.Replace("{admin_name}", userData["admin_name"].ToString())
                              .Replace("{password}", userData["password"].ToString());
@@ -486,6 +484,54 @@ namespace webapi.Controllers
                 });
             }
         }
+
+        /// <summary>
+        /// 查询所有供应商 API
+        /// </summary>
+        [HttpPost("initsupplierlist")]
+        public IActionResult InitSupplierList()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 获取所有供应商的 SQL 查询
+                sql = doc.Root.Element("AllSupplier").Value;
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable supplierDataTable = result.Tables[0];
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        suppliers = supplierDataTable
+                    });
+                }
+                else
+                {
+                    // 没有记录
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "初始化供应商失败：" + ex.Message
+                });
+            }
+        }
+
 
 
 
