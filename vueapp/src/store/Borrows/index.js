@@ -20,7 +20,7 @@ const actions = {
         initBorrowslist().then(res=>{
             console.log(res);
             
-        commit('INITBORROWSLIST',res.data)
+            commit('INITBORROWSLIST', res.borrowslists)
         },err=>console.log(err.message))
     },
     initBorrows({ commit }, readerObj) {
@@ -38,6 +38,7 @@ const actions = {
 const mutations = {
     INITBORROWSLIST(state,data){
         // 管理员保存借书记录的数组
+        data = data || [];
         state.borrowsList = data
     },
     INITBORROWS(state,data){

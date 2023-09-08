@@ -283,3 +283,9 @@ export const initReservelist = () =>
         url: "/AdminApi/initreservelist",
         method: "post",
     });
+// 管理员查看借阅接口
+export const initBorrowslist = () =>
+    requests({
+        url: "/AdminApi/initborrowslist",
+        method: "post",
+    });

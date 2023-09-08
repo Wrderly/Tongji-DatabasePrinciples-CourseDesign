@@ -428,9 +428,73 @@ namespace webapi.Controllers
         }
 
 
+        /// <summary>
+        /// 获取反馈列表 API
+        /// </summary>
+        /// <param name="userData">包含管理员ID</param>
+        [HttpPost("initborrowslist")]
+        public IActionResult InitBorrowslist()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 构建 SQL 查询或调用服务层获取用户资料
+                string sql = $"SELECT R.*, B.book_name, B.author FROM BorrowRecord R JOIN Book B ON R.book_id = B.book_id WHERE R.message = '逾期未还'";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 提取用户信息
+                    DataTable dataTable = result.Tables[0];
+                    List<Dictionary<string, string>> borrowslists = new List<Dictionary<string, string>>();
+
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        Dictionary<string, string> borrowslist = new Dictionary<string, string>();
+
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            borrowslist[column.ColumnName] = row[column].ToString();
+                        }
+
+                        borrowslists.Add(borrowslist);
+                    }
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        borrowslists
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取借阅列表失败：" + ex.Message
+                });
+            }
+        }
 
 
-        
+
+
+
+
+
+
+
 
 
 

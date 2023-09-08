@@ -40,7 +40,7 @@ export default {
   name: "ReaderReserve",
   computed: {
     ...mapState({
-      reserve(state) {
+        reserveList(state) {
             return state.Reserve.reserveList;
       },
     }),
