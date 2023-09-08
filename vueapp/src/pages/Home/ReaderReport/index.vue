@@ -43,7 +43,22 @@ export default {
   },
   methods: {
     sendreport() {
-      this.loading = true;
+          if (!this.textarea) {
+              this.$message({
+                  showClose: true,
+                  message: "反馈不能为空",
+                  type: "error",
+              });
+              return;
+          } else if (this.textarea.length > 900) {
+              this.$message({
+                  showClose: true,
+                  message: "反馈过长，最多输入300个汉字",
+                  type: "error",
+              });
+              return;
+          }
+          this.loading = true;
       let data = {
           reader_id: this.readerInfo.reader_id,
         content: this.textarea,

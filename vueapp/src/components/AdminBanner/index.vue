@@ -15,8 +15,8 @@
                     <i class="el-icon-search"></i>
                     <span>用户预约管理</span>
                 </template>
-                <el-menu-item index="1-1" @click="$router.push('/home/readerreserve')">
-                    <span>用户预约记录</span>
+                <el-menu-item index="1-1" @click="$router.push('/home/adminreserve')">
+                    <span>用户预约逾期</span>
                 </el-menu-item>
                 <el-menu-item index="1-2" @click="$router.push('/home/search')">
                     <span>书籍增加及修改</span>
@@ -27,8 +27,8 @@
                     <i class="el-icon-s-promotion"></i>
                     <span>用户借阅管理</span>
                 </template>
-                <el-menu-item index="1-1" @click="$router.push('/home/readerborrows')">
-                    <span>用户借阅记录</span>
+                <el-menu-item index="1-1" @click="$router.push('/home/adminborrows')">
+                    <span>用户借阅逾期</span>
                 </el-menu-item>
             </el-submenu>
             <el-menu-item index="4" @click="$router.push('/home/comment')">

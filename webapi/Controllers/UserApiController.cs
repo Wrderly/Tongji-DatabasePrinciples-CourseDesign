@@ -50,39 +50,31 @@ namespace webapi.Controllers
             }
             try
             {
-                // 解析从前端接收的用户数据
-                string readerName = userData["reader_name"].ToString();
-                string phoneNumber = userData["phone_number"].ToString();
-                string email = userData["email"].ToString();
-                string address = "default";
-                string readerType = "default";
-                string account = "default";
-                string password = userData["password"].ToString(); // 应该在前端加密密码
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                string checkUsernameSql = $"SELECT COUNT(*) FROM Reader WHERE reader_name = '{readerName}'";
+                tempSql = doc.Root.Element("UserNameConfirm").Value;
+                sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString());
+                DataSet result = db.OracleQuery(sql);
 
-                // 执行查询
-                DataSet result = db.OracleQuery(checkUsernameSql);
-
-                // 检查查询结果中的记录数
-                int count = Convert.ToInt32(result.Tables[0].Rows[0][0]);
-
-                // 如果 count 大于 0，表示用户名已存在，返回相应的错误消息
-                if (count > 0)
+                // 如果查询结果中有记录，表示用户名已存在
+                if (result.Tables[0].Rows.Count > 0)
                 {
                     return Ok(new
                     {
-                        //status = 200,//
-                        result = false,
                         msg = "用户名已存在"
                     });
                 }
 
                 // 构建SQL查询或调用服务层注册用户
-                string sql = $"INSERT INTO Reader (reader_id, reader_name, phone_number, email, address, reader_type, account, password) " +
-                             $"VALUES (reader_id_seq.nextval, '{readerName}', '{phoneNumber}', '{email}', '{address}', '{readerType}', '{account}', '{password}')";
-
-                Console.WriteLine(sql);
+                tempSql = doc.Root.Element("InsertUser").Value;
+                sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString())
+                             .Replace("{phone_number}", userData["phone_number"].ToString())
+                             .Replace("{email}", userData["email"].ToString())
+                             .Replace("{address}", "NULL")
+                             .Replace("{reader_type}", "default")
+                             .Replace("{account}", "NULL")
+                             .Replace("{password}", userData["password"].ToString())
+                             .Replace("{overdue_times}", "0");
 
                 db.OracleUpdate(sql);
 
@@ -113,13 +105,10 @@ namespace webapi.Controllers
             }
             try
             {
-                // 解析从前端接收的登录数据
-                string reader_name = userData["reader_name"].ToString();
-                string password = userData["password"].ToString(); // 应该在前端加密密码
-
-
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
                 // 构建 SQL 查询或调用服务层进行用户登录验证
-                string sql = $"SELECT reader_id FROM Reader WHERE reader_name = '{reader_name}'";
+                tempSql = doc.Root.Element("UserNameConfirm").Value;
+                sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
@@ -131,16 +120,9 @@ namespace webapi.Controllers
                     });
                 }
 
-
-                XDocument doc = XDocument.Load(PublicData.programPath + "\\UserApiSQL.xml");
-
-                string tempSql = doc.Root.Element("UserLogin").Value;
-
+                tempSql = doc.Root.Element("UserLogin").Value;
                 sql = tempSql.Replace("{reader_name}", userData["reader_name"].ToString())
                              .Replace("{password}", userData["password"].ToString());
-
-                //sql = $"SELECT * FROM Reader WHERE reader_name = '{reader_name}' AND password = '{password}'";
-
                 result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -191,10 +173,12 @@ namespace webapi.Controllers
             }
             try
             {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
                 string reader_id = userData["reader_id"].ToString();
                 // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT * FROM Reader WHERE reader_id = '{reader_id}'";
-
+                tempSql = doc.Root.Element("UserProfile").Value;
+                sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -214,7 +198,8 @@ namespace webapi.Controllers
                         address = data["address"].ToString(),
                         reader_type = data["reader_type"].ToString(),
                         account = data["account"].ToString(),
-                        overdue_times= data["overdue_times"].ToString()
+                        overdue_times = data["overdue_times"].ToString(),
+                        isAdmin = false
                     });
                 }
                 else
@@ -248,13 +233,13 @@ namespace webapi.Controllers
             }
             try
             {
-                // 解析从前端接收的用户数据
-                string readerId = userData["reader_id"].ToString();
-                string oldPassword = userData["oldPassword"].ToString();
-                string newPassword = userData["newPassword"].ToString();
-                string confirmNewPassword = userData["confirmNewPassword"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                string sql = $"SELECT password FROM Reader WHERE reader_id = '{readerId}'";
+                // 解析从前端接收的用户数据
+                string oldPassword = userData["oldPassword"].ToString();
+
+                tempSql = doc.Root.Element("UserProfile").Value;
+                sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables[0].Rows[0]["password"].ToString() != oldPassword)
@@ -266,10 +251,9 @@ namespace webapi.Controllers
                 }
 
                 // 构建 SQL 查询或调用服务层更新用户密码
-                sql = $"UPDATE Reader SET " +
-      $"password = '{newPassword}' " +
-      $"WHERE reader_id = '{readerId}'";
-
+                tempSql = doc.Root.Element("ChangePwd").Value;
+                sql = tempSql.Replace("{new_password}", userData["newPassword"].ToString())
+                             .Replace("{reader_id}", userData["reader_id"].ToString());
                 db.OracleUpdate(sql);
 
                 return Ok(new
@@ -297,29 +281,80 @@ namespace webapi.Controllers
             {
                 InitDB();
             }
+
             try
             {
-                string readerId = userData["reader_id"].ToString();
-                // 构建 SQL 查询或调用服务层注销用户
-                string sql = $"DELETE FROM Reader WHERE reader_id = '{readerId}'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                db.OracleUpdate(sql);
+                // 查询是否有未还的借书记录或预约记录
+                tempSql = doc.Root.Element("BorrowCount").Value;
+                sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
 
-                return Ok(new
+                int borrowCount = Convert.ToInt32(result.Tables[0].Rows[0][0]);
+                if (borrowCount > 0)
                 {
-                    status = 200,
-                    msg = "用户注销成功"
-                });
+                    return Ok(new
+                    {
+                        msg = "您有未处理的借书记录，请先处理后再注销账户。"
+                    });
+                }
+                else
+                {
+                    // 查询所有预约记录中message为已预约的数量
+                    tempSql = doc.Root.Element("ReserveCount").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    result = db.OracleQuery(sql);
+                    if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                    {
+                        DataTable reservedBooksTable = result.Tables[0];
+                        foreach (DataRow reservedBookRow in reservedBooksTable.Rows)
+                        {
+                                string bookId = reservedBookRow["book_id"].ToString();
+                                // 更新相关图书的数量
+                                tempSql = doc.Root.Element("ReserveBkNUpdate").Value;
+                                sql = tempSql.Replace("{book_id}", bookId);
+                                db.OracleUpdate(sql);
+                        }
+                    }
+
+                    // 删除该读者的所有借阅记录
+                    tempSql = doc.Root.Element("DelBorrow").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    db.OracleUpdate(sql);
+
+                    // 删除该读者的所有预约记录
+                    tempSql = doc.Root.Element("DelReserve").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    db.OracleUpdate(sql);
+
+                    // 删除该读者的所有反馈记录
+                    tempSql = doc.Root.Element("DelReport").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    db.OracleUpdate(sql);
+
+                    // 注销用户
+                    tempSql = doc.Root.Element("DelReader").Value;
+                    sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
+                    db.OracleUpdate(sql);
+
+                    return Ok(new
+                    {
+                        status = 200, // 成功注销
+                        msg = "用户注销成功"
+                    });
+                }
             }
             catch (Exception ex)
             {
                 return Ok(new
                 {
-                    result = false,
+                    status = 500, // 内部服务器错误
                     msg = "用户注销失败：" + ex.Message
                 });
             }
         }
+        
 
         /// <summary>
         /// 用户查询指定书籍 API
@@ -335,13 +370,12 @@ namespace webapi.Controllers
             }
             try
             {
-                // 构建 SQL 查询或调用服务层查询书名
-                string searchStr = bookData["searchStr"].ToString();
-                string sql = $"SELECT * FROM Book " +
-                             $"WHERE book_name LIKE '%{searchStr}%' OR " +
-                             $"author LIKE '%{searchStr}%' OR " +
-                             $"ISBN LIKE '%{searchStr}%'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                // 构建 SQL 查询或调用服务层查询书名
+
+                tempSql = doc.Root.Element("SearchBk").Value;
+                sql = tempSql.Replace("{searchStr}", bookData["searchStr"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -366,7 +400,7 @@ namespace webapi.Controllers
 
                     return Ok(new
                     {
-                        status=200,
+                        status = 200,
                         books
                     });
                 }
@@ -402,21 +436,15 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的预约数据
-                string readerId = reserveData["reader_id"].ToString();
-                string bookId = reserveData["book_id"].ToString();
-                string reserve_date = reserveData["reserve_date"].ToString();
-                string state = reserveData["message"].ToString();
-                string bookName = reserveData["book_name"].ToString();
-                string author = reserveData["author"].ToString();
-                string isbn = reserveData["isbn"].ToString();
-
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
                 // 检查是否禁止借书
-                string checkOvertimeSql = $"SELECT overdue_times FROM Reader WHERE reader_id = '{readerId}'";
-                DataSet OvertimeResult = db.OracleQuery(checkOvertimeSql);
-                int overdue_times = Convert.ToInt32(OvertimeResult.Tables[0].Rows[0]["overdue_times"]);
-                if (overdue_times>=5)
+                tempSql = doc.Root.Element("ODTimes").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+
+                int overdue_times = Convert.ToInt32(result.Tables[0].Rows[0]["overdue_times"]);
+                if (overdue_times >= 5)
                 {
                     return Ok(new
                     {
@@ -426,10 +454,12 @@ namespace webapi.Controllers
                 }
 
                 // 检查是否正在预约
-                string checkReserveSql = $"SELECT COUNT(*) FROM Reserve WHERE book_id = '{bookId}' AND (message = '已预约' OR message = '借阅中')";
-                DataSet ReserveResult = db.OracleQuery(checkReserveSql);
-                int count = Convert.ToInt32(ReserveResult.Tables[0].Rows[0][0]);
+                tempSql = doc.Root.Element("ReservedCount").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString())
+                             .Replace("{book_id}", reserveData["book_id"].ToString());
+                result = db.OracleQuery(sql);
 
+                int count = Convert.ToInt32(result.Tables[0].Rows[0][0]);
                 // 如果 count 大于 0，表示记录已存在，返回相应的错误消息
                 if (count > 0)
                 {
@@ -441,10 +471,11 @@ namespace webapi.Controllers
                 }
 
                 // 检查书籍数量是否足够
-                string checkNumSql = $"SELECT num FROM Book WHERE book_id = '{bookId}'";
-                DataSet numResult = db.OracleQuery(checkNumSql);
-                int num = Convert.ToInt32(numResult.Tables[0].Rows[0]["num"]);
+                tempSql = doc.Root.Element("BkCount").Value;
+                sql = tempSql.Replace("{book_id}", reserveData["book_id"].ToString());
+                result = db.OracleQuery(sql);
 
+                int num = Convert.ToInt32(result.Tables[0].Rows[0]["num"]);
                 if (num <= 0)
                 {
                     return Ok(new
@@ -456,16 +487,20 @@ namespace webapi.Controllers
 
                 // 更新书籍数量
                 num--;
-                string updateNumSql = $"UPDATE Book SET num = {num} WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateNumSql);
+                tempSql = doc.Root.Element("BkCountUpdate").Value;
+                sql = tempSql.Replace("{num}", "num - 1")
+                             .Replace("{book_id}", reserveData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
 
 
                 // 插入预约记录
-                string reserveRecordSql = $"INSERT INTO Reserve (book_id, reader_id, reserve_date, message) " +
-                                         $"VALUES ('{bookId}', '{readerId}', '{reserve_date}', '{state}')";
-
-                db.OracleUpdate(reserveRecordSql);
+                tempSql = doc.Root.Element("InsertReserve").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString())
+                             .Replace("{book_id}", reserveData["book_id"].ToString())
+                             .Replace("{reserve_date}", reserveData["reserve_date"].ToString())
+                             .Replace("{message}", reserveData["message"].ToString());
+                db.OracleUpdate(sql);
 
                 return Ok(new
                 {
@@ -495,19 +530,16 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的用户id
-                string readerId = reserveData["reader_id"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
                 // 获取预约记录的 SQL 查询，包括相关书籍信息
-                string reserveRecordSql = $@"SELECT R.*, B.book_name, B.author, B.ISBN
-                                    FROM Reserve R
-                                    JOIN Book B ON R.book_id = B.book_id
-                                    WHERE R.reader_id = '{readerId}'";
-                DataSet reserveRecordResult = db.OracleQuery(reserveRecordSql);
+                tempSql = doc.Root.Element("ReserveInfo").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
 
-                if (reserveRecordResult.Tables.Count > 0 && reserveRecordResult.Tables[0].Rows.Count > 0)
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
-                    DataTable reserveRecordDataTable = reserveRecordResult.Tables[0];
+                    DataTable reserveRecordDataTable = result.Tables[0];
 
                     return Ok(new
                     {
@@ -547,22 +579,24 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的用户id
-                string bookId = reserveData["book_id"].ToString();
-                string readerId = reserveData["reader_id"].ToString();
-                string message = "已预约";
-                string DeleteRecordSql = $"DELETE FROM Reserve WHERE reader_id = '{readerId}' AND book_id = '{bookId}' AND message = '{message}'";
-                db.OracleQuery(DeleteRecordSql);
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                // 获取书籍数量
-                string checkNumSql = $"SELECT num FROM Book WHERE book_id = '{bookId}'";
-                DataSet numResult = db.OracleQuery(checkNumSql);
-                int num = Convert.ToInt32(numResult.Tables[0].Rows[0]["num"]);
+                tempSql = doc.Root.Element("DelReserve1").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString())
+                             .Replace("{book_id}", reserveData["book_id"].ToString());
+                db.OracleUpdate(sql);
+
+                tempSql = doc.Root.Element("BkCount").Value;
+                sql = tempSql.Replace("{book_id}", reserveData["book_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+                int num = Convert.ToInt32(result.Tables[0].Rows[0]["num"]);
 
                 // 更新书籍数量
                 num++;
-                string updateNumSql = $"UPDATE Book SET num = {num} WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateNumSql);
+                tempSql = doc.Root.Element("BkCountUpdate").Value;
+                sql = tempSql.Replace("{num}", "num + 1")
+                             .Replace("{book_id}", reserveData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
                 return Ok(new
                 {
@@ -593,14 +627,15 @@ namespace webapi.Controllers
 
             try
             {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
                 // 解析从前端接收的数据
                 string nowTimeString = reserveData["now_time"].ToString();
                 DateTime nowTime = DateTime.ParseExact(nowTimeString, "yyyy-MM-dd HH:mm:ss", null);
 
                 // 获取该读者的所有“已预约”的预约记录
-                string tempSql = doc.Root.Element("ReserveDate").Value;
-                string sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
-
+                tempSql = doc.Root.Element("ReserveDate").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -612,13 +647,12 @@ namespace webapi.Controllers
                         // 获取预约时间
                         DateTime reserveTime = DateTime.ParseExact(reservedBookRow["reserve_date"].ToString(), "yyyy-MM-dd HH:mm:ss", null);
 
-                        Console.WriteLine(reservedBookRow);
                         // 计算时间差
                         TimeSpan timeDiff = nowTime - reserveTime;
 
                         // 如果时间差超过7天则视为违约
-                        //if (timeDiff.Seconds > 10)
-                        if (timeDiff.Days > 7)
+                        if (timeDiff.Seconds > 30)
+                        //if (timeDiff.Days > 7)
                         {
                             // 更新消息状态
                             string bookId = reservedBookRow["book_id"].ToString();
@@ -642,7 +676,6 @@ namespace webapi.Controllers
                     // 返回成功消息
                     return Ok(new
                     {
-                        status=200,
                         msg = "处理成功"
                     });
                 }
@@ -665,7 +698,7 @@ namespace webapi.Controllers
             }
         }
 
-        
+
 
         /// <summary>
         /// 用户借书 API
@@ -681,31 +714,31 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的借书数据
-                string readerId = borrowData["reader_id"].ToString();
-                string bookId = borrowData["book_id"].ToString();
-                string reserveDate = borrowData["reserve_date"].ToString();
-                string borrowDate = borrowData["borrow_date"].ToString();
-                string bookName = borrowData["book_name"].ToString();
-                string author = borrowData["author"].ToString();
-                string isbn = borrowData["isbn"].ToString();
-                string message = borrowData["message"].ToString();
-                string returnDate = "NULL";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
                 // 插入借书记录
-                string borrowRecordSql = $"INSERT INTO BorrowRecord (book_id, reader_id, borrow_date, return_date, message) " +
-                                         $"VALUES ('{bookId}', '{readerId}', '{borrowDate}', '{returnDate}', '{message}')";
 
-                db.OracleUpdate(borrowRecordSql);
+                tempSql = doc.Root.Element("InsertBorrow").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString())
+                             .Replace("{borrow_date}", borrowData["borrow_date"].ToString())
+                             .Replace("{return_date}", "NULL")
+                             .Replace("{message}", borrowData["message"].ToString());
+                db.OracleUpdate(sql);
 
                 // 插入续借次数
-                string borrowRenewSql = $"INSERT INTO Rule (book_id, reader_id, time_limit, renew_time) " +
-                                         $"VALUES ('{bookId}', '{readerId}', 0, 0)";
+                // 插入借阅规则记录？
+                tempSql = doc.Root.Element("InsertRules").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
-                db.OracleUpdate(borrowRenewSql);
-
-                string updateMessageSql = $"UPDATE Reserve SET message = '借阅中' WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND reserve_date = '{reserveDate}'";
-                db.OracleUpdate(updateMessageSql);
+                //更新借阅信息
+                tempSql = doc.Root.Element("UpdateReserve").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString())
+                             .Replace("{reserve_date}", borrowData["reserve_date"].ToString());
+                db.OracleUpdate(sql);
 
                 return Ok(new
                 {
@@ -735,16 +768,12 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的用户id
-                string readerId = borrowData["reader_id"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                // 获取预约记录的 SQL 查询，包括相关书籍信息
-                string borrowRecordSql = $@"SELECT R.*, B.book_name, B.author, B.ISBN, RU.renew_time
-                                    FROM BorrowRecord R
-                                    JOIN Book B ON R.book_id = B.book_id
-                                    LEFT JOIN Rule RU ON R.book_id = RU.book_id
-                                    WHERE R.reader_id = '{readerId}'";
-                DataSet borrowRecordResult = db.OracleQuery(borrowRecordSql);
+                // 查询所有借书记录
+                tempSql = doc.Root.Element("AllBorrowRecord").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString());
+                DataSet borrowRecordResult = db.OracleQuery(sql);
 
                 if (borrowRecordResult.Tables.Count > 0 && borrowRecordResult.Tables[0].Rows.Count > 0)
                 {
@@ -787,6 +816,7 @@ namespace webapi.Controllers
         /// 用户还书 API
         /// </summary>
         /// <param name="returnData">包含还书信息</param>
+        /// 允许通过书名、作者名、ISBN号进行模糊查找
         [HttpPost("returnbook")]
         public IActionResult ReturnBook([FromBody] JObject returnData)
         {
@@ -797,31 +827,40 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的还书数据
-                string readerId = returnData["reader_id"].ToString();
-                string bookId = returnData["book_id"].ToString();
-                string borrowDate = returnData["borrow_date"].ToString();
-                string returnDate = returnData["return_date"].ToString();
-                string message = returnData["message"].ToString();
-                string reservemessage = "借阅中";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
                 // 更新借书记录
-                string updateReturnDateSql = $"UPDATE BorrowRecord SET return_date = '{returnDate}' , message = '{message}' " +
-                                             $"WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND borrow_date = '{borrowDate}'  ";
-                db.OracleUpdate(updateReturnDateSql);
+                tempSql = doc.Root.Element("UpdateBorrowRecord").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString())
+                             .Replace("{borrow_date}", returnData["borrow_date"].ToString())
+                             .Replace("{return_date}", returnData["return_date"].ToString())
+                             .Replace("{message}", returnData["message"].ToString());
+                db.OracleUpdate(sql);
 
                 // 删除续借记录
-                string updateRenewSql = $"DELETE FROM Rule WHERE reader_id = '{readerId}' AND book_id = '{bookId}'";
-
-                db.OracleUpdate(updateRenewSql);
+                tempSql = doc.Root.Element("DelRule").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
                 // 删除预约记录
-                string reserveRecordSql = $"DELETE FROM Reserve WHERE reader_id = '{readerId}' AND book_id = '{bookId}' AND message = '{reservemessage}'";
+                tempSql = doc.Root.Element("DelReserve2").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
-                db.OracleUpdate(reserveRecordSql);
+                tempSql = doc.Root.Element("BkCount").Value;
+                sql = tempSql.Replace("{book_id}", returnData["book_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+                int num = Convert.ToInt32(result.Tables[0].Rows[0]["num"]);
 
                 // 更新书籍数量
-                string updateNumSql = $"UPDATE Book SET num = num + 1 WHERE book_id = '{bookId}'";
-                db.OracleUpdate(updateNumSql);
+                num++;
+                tempSql = doc.Root.Element("BkCountUpdate").Value;
+                sql = tempSql.Replace("{num}", "num + 1")
+                             .Replace("{book_id}", returnData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
                 return Ok(new
                 {
@@ -834,7 +873,7 @@ namespace webapi.Controllers
                 {
                     status = 0,
                     msg = "还书失败：" + ex.Message
-                }) ;
+                });
             }
         }
 
@@ -852,16 +891,16 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的还书数据
-                string readerId = returnData["reader_id"].ToString();
-                string bookId = returnData["book_id"].ToString();
-                string borrowDate = returnData["borrow_date"].ToString();
-                string old_borrowDate = returnData["old_borrow_date"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
                 string message = returnData["message"].ToString();
                 string newmessage = "续借中";
 
-                string checkmessageSql = $"SELECT message FROM BorrowRecord WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND borrow_date = '{old_borrowDate}'";
-                DataSet MessageResult = db.OracleQuery(checkmessageSql);
+                tempSql = doc.Root.Element("CheckMessage").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString())
+                             .Replace("{old_borrowDate}", returnData["old_borrow_date"].ToString());
+                DataSet MessageResult = db.OracleQuery(sql);
                 string checkmessage = MessageResult.Tables[0].Rows[0]["message"].ToString();
 
                 if (checkmessage == "逾期未还")
@@ -873,11 +912,15 @@ namespace webapi.Controllers
                     });
                 }
 
-                string checkRenewSql = $"SELECT renew_time FROM Rule WHERE book_id = '{bookId}' AND reader_id = '{readerId}'";
-                DataSet numResult = db.OracleQuery(checkRenewSql);
-                int renew_time = Convert.ToInt32(numResult.Tables[0].Rows[0]["renew_time"]);
+                // 查询所有借书记录
+                tempSql = doc.Root.Element("RenewTimes").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
 
-                if(renew_time>=5)
+                int renew_time = Convert.ToInt32(result.Tables[0].Rows[0]["renew_time"]);
+
+                if (renew_time >= 5)
                 {
                     return Ok(new
                     {
@@ -886,25 +929,32 @@ namespace webapi.Controllers
                     });
                 }
 
-
                 // 更新借书记录
-                if(message == "已借阅")
+                if (message == "已借阅")
                 {
-                    string updateReturnDateSql = $"UPDATE BorrowRecord SET borrow_date = '{borrowDate}' , message = '{newmessage}' " +
-                                             $"WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND message = '{message}'  ";
-                    db.OracleUpdate(updateReturnDateSql);
+                    tempSql = doc.Root.Element("UpdateBorrowRecordRenew1").Value;
+                    sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                                 .Replace("{book_id}", returnData["book_id"].ToString())
+                                 .Replace("{borrow_date}", returnData["borrow_date"].ToString())
+                                 .Replace("{message}", returnData["message"].ToString())
+                                 .Replace("{newmessage}", newmessage);
+                    db.OracleUpdate(sql);
                 }
                 else
                 {
-                    string updateReturnDateSql = $"UPDATE BorrowRecord SET borrow_date = '{borrowDate}' " +
-                                             $"WHERE book_id = '{bookId}' AND reader_id = '{readerId}' AND message = '{message}'  ";
-                    db.OracleUpdate(updateReturnDateSql);
+                    tempSql = doc.Root.Element("UpdateBorrowRecordRenew2").Value;
+                    sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                                 .Replace("{book_id}", returnData["book_id"].ToString())
+                                 .Replace("{borrow_date}", returnData["borrow_date"].ToString())
+                                 .Replace("{message}", returnData["message"].ToString());
+                    db.OracleUpdate(sql);
                 }
 
                 // 更新续借次数
-                string updateRenewSql = $"UPDATE Rule SET renew_time = renew_time + 1" +
-                                             $"WHERE book_id = '{bookId}' AND reader_id = '{readerId}' ";
-                db.OracleUpdate(updateRenewSql);
+                tempSql = doc.Root.Element("UpdateRenewTimes").Value;
+                sql = tempSql.Replace("{reader_id}", returnData["reader_id"].ToString())
+                             .Replace("{book_id}", returnData["book_id"].ToString());
+                db.OracleUpdate(sql);
 
                 return Ok(new
                 {
@@ -963,8 +1013,8 @@ namespace webapi.Controllers
                         TimeSpan timeDiff = nowTime - borrowTime;
 
                         // 如果时间差超过7天则视为违约
-                        //if (timeDiff.Seconds > 10)
-                        if (timeDiff.Days > 7)
+                        if (timeDiff.Seconds > 30)
+                        //if (timeDiff.Days > 7)
                         {
                             // 更新消息状态
                             string bookId = borrowBookRow["book_id"].ToString();
@@ -1021,13 +1071,14 @@ namespace webapi.Controllers
 
             try
             {
-                // 解析从前端接收的反馈
-                string readerId = reportData["reader_id"].ToString();
-                string feedback = reportData["content"].ToString();
-                string nowTime = reportData["now_time"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                string sql = $"INSERT INTO Report (reader_id, feedback, report_date)" +
-                                      $"VALUES ('{readerId}', '{feedback}', '{nowTime}')";
+                //这里不用SYSDATE了，沿用前面的方式，前端需要扔进来一个当前时间now_time，类似于reserve里的
+
+                tempSql = doc.Root.Element("InsertReport").Value;
+                sql = tempSql.Replace("{reader_id}", reportData["reader_id"].ToString())
+                             .Replace("{feedback}", reportData["content"].ToString())
+                             .Replace("{report_date}", reportData["now_time"].ToString());
                 db.OracleUpdate(sql);
 
                 return Ok(new

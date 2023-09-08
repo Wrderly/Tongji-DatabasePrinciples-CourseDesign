@@ -261,7 +261,7 @@ export const change_pwd_admin = (
             confirmNewPassword
         ),
     });
-// 管理员删除用户接口
+// 管理员修改用户违规次数接口
 export const updateCount = (Obj) =>
     requests({
         url: "/AdminApi/updatecount",
@@ -270,4 +270,16 @@ export const updateCount = (Obj) =>
             "Content-Type": "application/json",
         },
         data: JSON.stringify(Obj),
+    });
+// 管理员查看反馈接口
+export const initReportList = () =>
+    requests({
+        url: "/AdminApi/initreportlist",
+        method: "post",
+    });
+// 管理员查看预约接口
+export const initReservelist = () =>
+    requests({
+        url: "/AdminApi/initreservelist",
+        method: "post",
     });

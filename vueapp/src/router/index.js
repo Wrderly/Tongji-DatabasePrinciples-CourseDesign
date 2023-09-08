@@ -3,18 +3,20 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter);
 
-import LoginRegister from "@/pages/LoginRegister";
-import Home from "@/pages/Home";
-import Userhome from "@/pages/Home/Userhome";
-import SearchBooks from "@/pages/Home/SearchBooks";
-import ReaderBorrows from "@/pages/Home/ReaderBorrows";
-import ReaderReserve from "@/pages/Home/ReaderReserve";
-import Comment from "@/pages/Home/Comment";
-import ReaderReport from "@/pages/Home/ReaderReport";
-import UserInfor from "@/pages/Home/UserInfor";
-import Person from "@/pages/Home/Person";
-import Schedule from "@/pages/Home/Schedule";
-import AdminReport from '@/pages/Home/AdminReport'
+import LoginRegister from "../pages/LoginRegister/index.vue";
+import Home from "../pages/Home/index.vue";
+import Userhome from "../pages/Home/Userhome/index.vue";
+import SearchBooks from "../pages/Home/SearchBooks/index.vue";
+import ReaderBorrows from "../pages/Home/ReaderBorrows/index.vue";
+import ReaderReserve from "../pages/Home/ReaderReserve/index.vue";
+import Comment from "../pages/Home/Comment/index.vue";
+import ReaderReport from "../pages/Home/ReaderReport/index.vue";
+import UserInfor from "../pages/Home/UserInfor/index.vue";
+import Person from "../pages/Home/Person/index.vue";
+import Schedule from "../pages/Home/Schedule/index.vue";
+import AdminReport from "../pages/Home/AdminReport/index.vue";
+import AdminReserve from "../pages/Home/AdminReserve/index.vue";
+import AdminBorrows from "../pages/Home/AdminBorrows/index.vue";
 
 
 export default new VueRouter({
@@ -67,7 +69,7 @@ export default new VueRouter({
           component: ReaderReport,
         },
         {
-          //     读者个人信息
+          //     个人信息
             path: "userinfor",
             component: UserInfor,
           },
@@ -85,6 +87,16 @@ export default new VueRouter({
               //     管理员反馈
               path: "adminreport",
               component: AdminReport,
+          },
+          {
+              //     管理员预约记录
+              path: "adminreserve",
+              component: AdminReserve,
+          },
+          {
+              //     管理员借书记录
+              path: "adminborrows",
+              component: AdminBorrows,
           }
       ],
     },

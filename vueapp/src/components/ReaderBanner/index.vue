@@ -69,7 +69,6 @@ export default {
       isCollapse: true,
     };
   },
-
   mounted() {
     // this.$store.dispatch('initCommentsList')
     // this.$store.dispatch('initBorrows',{readerId:this.readerId})
@@ -92,7 +91,7 @@ export default {
     },
     toggleUser() {
       this.$router.push("/LoginRegister");
-    },
+      },
   },
 };
 </script>

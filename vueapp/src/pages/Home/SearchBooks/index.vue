@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-input
-      placeholder="请输入您要搜索的书名/作者/ISBN"
+      placeholder="请输入您要搜索的图书ID/书名/作者/ISBN/类别"
       prefix-icon="el-icon-search"
       @keyup.enter.native="searchBook"
       @blur="clear"
@@ -78,7 +78,6 @@
 import { mapState } from "vuex";
 import {
   addReserve,
-  initReserve,
   searchBook,
   changeBookInfo,
   delBook,

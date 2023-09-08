@@ -9,10 +9,10 @@
 	
 	<!-- 新建用户 -->
 	<InsertUser>
-		INSERT INTO Reader (reader_id, reader_name, phone_number, email, address, reader_type, account, password)
-		VALUES (reader_id_seq.nextval, '{reader_name}', '{phone_number}', '{email}', '{address}', '{reader_type}', '{account}', '{password}')
+		INSERT INTO Reader (reader_id, reader_name, phone_number, email, address, reader_type, account, password, overdue_times)
+		VALUES (reader_id_seq.nextval, '{reader_name}', '{phone_number}', '{email}', '{address}', '{reader_type}', '{account}', '{password}', '{overdue_times}')
 	</InsertUser>
-	
+
 	<!-- 用户登录 -->
 	<UserLogin>
 		SELECT *
@@ -20,14 +20,130 @@
 		WHERE reader_name = '{reader_name}'
 		AND password = '{password}'
 	</UserLogin>
+	
 	<!-- 用户信息选择 -->
 	<UserProfile>
-		SELECT password
+		SELECT *
 		FROM Reader
 		WHERE reader_id = '{reader_id}'
 	</UserProfile>
 
-	<!-- 预约:查询发起预约的日期 -->
+	<!-- 密码更改 -->
+	<ChangePwd>
+		UPDATE Reader SET
+		password = '{new_password}'
+		WHERE reader_id = '{reader_id}'
+	</ChangePwd>
+
+	<!-- 注销:检查未还记录数量 -->
+	<BorrowCount>
+		SELECT COUNT(*)
+		FROM BorrowRecord
+		WHERE reader_id = '{reader_id}'
+		AND return_date = 'NULL'
+	</BorrowCount>
+
+	<!-- 注销:检查已预约记录数量 -->
+	<ReserveCount>
+		SELECT *
+		FROM Reserve
+		WHERE reader_id = '{reader_id}'
+		AND message = '已预约'
+	</ReserveCount>
+
+	<!-- 注销:删除所有预约记录 -->
+	<DelReserve>
+		DELETE FROM
+		Reserve WHERE
+		reader_id = '{reader_id}'
+	</DelReserve>
+	
+	<!-- 注销:删除所有借阅记录 -->
+	<DelBorrow>
+		DELETE FROM
+		BorrowRecord WHERE
+		reader_id = '{reader_id}'
+	</DelBorrow>
+
+	<!-- 注销:删除所有反馈记录 -->
+	<DelReport>
+		DELETE FROM
+		Report WHERE
+		reader_id = '{reader_id}'
+	</DelReport>
+	
+	<!-- 注销:销户 -->
+	<DelReader>
+		DELETE FROM
+		Reader WHERE
+		reader_id = '{reader_id}'
+	</DelReader>
+
+	<!-- 查书 -->
+	<SearchBk>
+		SELECT *
+		FROM Book
+		WHERE book_id = '{searchStr}'
+		OR book_name LIKE '%{searchStr}%'
+		OR author LIKE '%{searchStr}%'
+		OR ISBN LIKE '%{searchStr}%'
+		OR collection_type LIKE '%{searchStr}%'
+	</SearchBk>
+
+	<!-- 预约:查询读者违约记录 -->
+	<ODTimes>
+		SELECT overdue_times
+		FROM Reader
+		WHERE reader_id = '{reader_id}'
+	</ODTimes>
+
+	<!-- 预约:查询是否正在借阅(当前数量) -->
+	<ReservedCount>
+		SELECT COUNT(*)
+		FROM Reserve
+		WHERE (reader_id) = '{reader_id}'
+		AND (book_id) = '{book_id}'
+		AND (message = '已预约'
+		OR message = '借阅中')
+	</ReservedCount>
+
+	<!-- 查询书籍数量 -->
+	<BkCount>
+		SELECT num
+		FROM Book
+		WHERE book_id = '{book_id}'
+	</BkCount>
+
+	<!-- 更新书籍数量(注意:减少图书存量是在预约时，增加是在还时) -->
+	<BkCountUpdate>
+		UPDATE Book
+		SET num = {num}
+		WHERE book_id = '{book_id}'
+	</BkCountUpdate>
+
+	<!-- 预约:插入预约记录-->
+	<InsertReserve>
+		INSERT INTO Reserve (reader_id, book_id, reserve_date, message)
+		VALUES ('{reader_id}', '{book_id}', '{reserve_date}', '{message}')
+	</InsertReserve>
+
+	<!-- 预约:获取用户及书籍信息-->
+	<ReserveInfo>
+		SELECT R.*, B.book_name, B.author, B.ISBN
+		FROM Reserve R
+		JOIN Book B ON R.book_id = B.book_id
+		WHERE R.reader_id = '{reader_id}'
+	</ReserveInfo>
+
+	<!-- 预约:删除预约信息-->
+	<DelReserve1>
+		DELETE FROM Reserve
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND message = '已预约'
+	</DelReserve1>
+
+	<!-- 预约:查询该读者所有已预约的条目 -->
 	<ReserveDate>
 		SELECT *
 		FROM Reserve
@@ -35,7 +151,7 @@
 		AND message = '已预约'
 	</ReserveDate>
 
-	<!-- 预约:更新预约状态 -->
+	<!-- 预约过期:更新预约状态 -->
 	<ReserveMsgUpdate>
 		UPDATE Reserve
 		SET message = '逾期未取'
@@ -43,19 +159,118 @@
 		AND book_id = '{book_id}'
 		AND message = '已预约'
 	</ReserveMsgUpdate>
-	<!-- 预约:更新书籍数量 -->
+	
+	<!-- 预约过期:更新书籍数量 -->
 	<ReserveBkNUpdate>
 		UPDATE Book
 		SET num = num + 1
 		WHERE book_id = '{book_id}'
 	</ReserveBkNUpdate>
-	<!-- 预约:增加违约记录 -->
+	
+	<!-- 预约过期:增加违约记录 -->
 	<ReserveReaderODUpdate>
 		UPDATE Reader
 		SET overdue_times = overdue_times + 1
 		WHERE reader_id = '{reader_id}'
 	</ReserveReaderODUpdate>
 
+	<!-- 借书:插入借书记录 -->
+	<InsertBorrow>
+		INSERT INTO BorrowRecord (reader_id, book_id, borrow_date, return_date, message)
+		VALUES ('{reader_id}', '{book_id}', '{borrow_date}', '{return_date}', '{message}')
+	</InsertBorrow>
+	
+	<!-- 借书:插入借阅规则记录 -->
+	<InsertRules>
+		INSERT INTO Rule (book_id, reader_id, time_limit, renew_time)
+		VALUES ('{book_id}', '{reader_id}', 0, 0)
+	</InsertRules>
+	
+	<!-- 借书:更新预约信息 -->
+	<UpdateReserve>
+		UPDATE Reserve
+		SET message = '借阅中'
+		WHERE book_id = '{book_id}'
+		AND reader_id = '{reader_id}'
+		AND reserve_date = '{reserve_date}'
+	</UpdateReserve>
+
+	<!-- 返回所有借书记录 -->
+	<AllBorrowRecord>
+		SELECT R.*, B.book_name, B.author, B.ISBN, RU.renew_time
+		FROM BorrowRecord R
+		JOIN Book B ON R.book_id = B.book_id
+		LEFT JOIN Rule RU ON R.book_id = RU.book_id
+		WHERE R.reader_id = '{reader_id}'
+	</AllBorrowRecord>
+
+	<!-- 还书:更新借书记录 -->
+	<UpdateBorrowRecord>
+		UPDATE BorrowRecord
+		SET return_date = '{return_date}', message = '{message}'
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND borrow_date = '{borrow_date}'
+	</UpdateBorrowRecord>
+	
+	<!-- 还书:删除续借记录 -->
+	<DelRule>
+		DELETE FROM Rule
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+	</DelRule>
+	
+	<!-- 还书:删除预约记录 -->
+	<DelReserve2>
+		DELETE FROM Reserve
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND message = '借阅中'
+	</DelReserve2>
+
+	<!-- 续借:查询是否禁止 -->
+	<CheckMessage>
+		SELECT message
+		FROM BorrowRecord
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+		AND borrow_date = '{old_borrowDate}'
+	</CheckMessage>
+	
+	<!-- 续借:查询续借次数 -->
+	<RenewTimes>
+		SELECT renew_time
+		FROM Rule
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+	</RenewTimes>
+
+	<!-- 续借:更新借书记录1 -->
+	<UpdateBorrowRecordRenew1>
+		UPDATE BorrowRecord
+		SET borrow_date = '{borrow_date}', message = '{newmessage}'
+		WHERE book_id = '{book_id}'
+		AND reader_id = '{reader_id}'
+		AND message = '{message}'
+	</UpdateBorrowRecordRenew1>
+
+	<!-- 续借:更新借书记录2 -->
+	<UpdateBorrowRecordRenew2>
+		UPDATE BorrowRecord
+		SET borrow_date = '{borrow_date}'
+		WHERE book_id = '{book_id}'
+		AND reader_id = '{reader_id}'
+		AND message = '{message}'
+	</UpdateBorrowRecordRenew2>
+
+	<!-- 续借:更新续借次数 -->
+	<UpdateRenewTimes>
+		UPDATE Rule
+		SET renew_time = renew_time + 1
+		WHERE reader_id = '{reader_id}'
+		AND book_id = '{book_id}'
+	</UpdateRenewTimes>
+	
 	<!-- 借阅:查询借阅的日期 -->
 	<BorrowDate>
 		SELECT *
@@ -63,6 +278,7 @@
 		WHERE reader_id = '{reader_id}'
 		AND (message = '已借阅' OR message = '续借中')
 	</BorrowDate>
+	
 	<!-- 预约:更新借阅状态 -->
 	<BorrowMsgUpdate>
 		UPDATE BorrowRecord
@@ -71,10 +287,17 @@
 		AND book_id = '{book_id}'
 		AND (message = '已借阅' OR message = '续借中')
 	</BorrowMsgUpdate>
+	
 	<!-- 预约:增加违约记录 -->
 	<BorrowReaderODUpdate>
 		UPDATE Reader
 		SET overdue_times = overdue_times + 1
 		WHERE reader_id = '{reader_id}'
 	</BorrowReaderODUpdate>
+
+	<!-- 插入用户反馈 -->
+	<InsertReport>
+		INSERT INTO Report (reader_id, feedback, report_date) 
+		VALUES ('{reader_id}', '{feedback}', '{report_date}')
+	</InsertReport>
 </Queries>

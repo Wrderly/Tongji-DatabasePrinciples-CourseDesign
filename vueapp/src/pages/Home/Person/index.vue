@@ -27,15 +27,17 @@
             </template>
         </el-table-column>
         <el-table-column label="修改违约次数">
-            <el-button type="primary" @click="showDialog = true">修改</el-button>
-            <el-dialog title="修改违约次数" :visible.sync="showDialog">
-                <span>您确定要修改此用户的违约次数吗？</span>
-                <el-input type="text" v-model="newCount" placeholder="请输入新的违约次数"></el-input>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="showDialog = false">取消</el-button>
-                    <el-button type="primary" @click="updateCount(scope.$index, scope.row)">确定</el-button>
-                </span>
-            </el-dialog>
+            <template slot-scope="scope">
+                <el-button type="danger" @click="showDialog(scope.$index)">修改</el-button>
+                <el-dialog title="修改违约次数" :visible.sync="dialogVisible">
+                    <span>请输入新的违约次数：</span>
+                    <el-input-number v-model="newCount" :min="0" :max="5"></el-input-number>
+                    <span slot="footer" class="dialog-footer">
+                        <el-button @click="dialogVisible = false">取消</el-button>
+                        <el-button type="primary" @click="UpdateCount">确定</el-button>
+                    </span>
+                </el-dialog>
+            </template>
         </el-table-column>
     </el-table>
 </template>
@@ -45,10 +47,10 @@ import { mapState } from "vuex";
 import { updateCount } from "@/api";
 export default {
   data() {
-    return {
-
-      newCount:'',
-      showDialog:false,
+        return {
+            readerId:0,
+            dialogVisible: false, // 对话框显示状态
+      newCount:0,
       loading: false,
     };
   },
@@ -56,13 +58,17 @@ export default {
   mounted() {
     this.$store.dispatch("initReaderList");
   },
-  methods: {
+        methods: {
+            showDialog(index) {
+                this.readerId = this.readerList[index].READER_ID;
+                this.newCount = this.readerList[index].OVERDUE_TIMES; // 设置初始值为当前行的违约次数
+                this.dialogVisible = true;
+            },
     // 修改违约次数
-    UpdateCount(index, row) {
-      console.log(index, row);
-      let reader_id = row.READER_ID;
-      let overdue_times = this.newCount;
-      let Obj = { reader_id, overdue_times };
+    UpdateCount() {
+        let reader_id = this.readerId;
+        let overdue_times = this.newCount;
+        let Obj = { reader_id, overdue_times };
       console.log(Obj);
       this.loading = true;
           updateCount(Obj).then(
@@ -75,7 +81,9 @@ export default {
               message: "修改成功！",
               type: "success",
             });
-            this.showDialog = false;
+              this.dialogVisible = false;
+              this.newCount = 0;
+              this.readerId = 0;
           }
         },
         (err) => {
@@ -88,9 +96,6 @@ export default {
   },
   computed: {
     ...mapState({
-      admin_id(state) {
-          return state.User.adminInfo.admin_id;
-      },
       readerList(state) {
           return state.User.readerList;
       },

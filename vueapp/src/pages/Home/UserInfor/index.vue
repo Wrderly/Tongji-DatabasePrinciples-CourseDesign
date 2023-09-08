@@ -109,17 +109,17 @@ export default {
       },
     }),
   },
-  mounted() {
-    if (this.isAdmin)
-        initAdmin({ admin_id: this.adminInfo.admin_id }).then(
-        (res) => {
-          console.log(res);
-          this.$store.dispatch("setAdminInfo", res);
-        },
-        (err) => {
-          console.log(err.message);
-        }
-          );
+        mounted() {
+            if (this.isAdmin)
+                initAdmin({ admin_id: this.adminInfo.admin_id }).then(
+                    (res) => {
+                        console.log(res);
+                        this.$store.dispatch("setAdminInfo", res);
+                    },
+                    (err) => {
+                        console.log(err.message);
+                    }
+                );
       else
         initReader({ reader_id: this.readerInfo.reader_id }).then(
             (res) => {

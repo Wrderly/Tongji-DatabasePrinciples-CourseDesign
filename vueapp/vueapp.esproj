@@ -21,6 +21,7 @@
     <Folder Include="src\components\AdminBanner\" />
     <Folder Include="src\pages\Home\Schedule\" />
     <Folder Include="src\pages\Home\Person\" />
-    <Folder Include="src\pages\Home\AdminReport\" />
+    <Folder Include="src\pages\Home\AdminReserve\" />
+    <Folder Include="src\pages\Home\AdminBorrows\" />
   </ItemGroup>
 </Project>

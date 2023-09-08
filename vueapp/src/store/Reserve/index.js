@@ -10,7 +10,7 @@ const actions = {
         initReservelist().then(res=>{
             console.log(res);
             
-        commit('INITRESERVELIST',res.data)
+            commit('INITRESERVELIST', res.reservelists)
         },err=>console.log(err.message))
     },
     initReserve({commit},readerObj){
@@ -29,7 +29,8 @@ const actions = {
 const mutations = {
     INITRESERVELIST(state,data){
         // 管理员保存预订图书记录
-        state.reserveList = data
+        data = data || [];
+        state.reserveList = data;
     },
     INITRESERVE(state, data) {
         data = data || [];

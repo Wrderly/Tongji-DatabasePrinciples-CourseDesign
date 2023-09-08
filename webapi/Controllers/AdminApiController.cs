@@ -136,7 +136,8 @@ namespace webapi.Controllers
                         admin_id = data["admin_id"].ToString(),
                         admin_name = data["admin_name"].ToString(),
                         phone_number = data["phone_number"].ToString(),
-                        email = data["email"].ToString()
+                        email = data["email"].ToString(),
+                        isAdmin = true
                     });
                 }
                 else
@@ -270,7 +271,7 @@ namespace webapi.Controllers
         }
 
         /// <summary>
-        /// 删除用户 API
+        /// 用户违规次数 API
         /// </summary>
         /// <param name="userData">包含用户id</param>
         [HttpPost("updatecount")]
@@ -285,10 +286,10 @@ namespace webapi.Controllers
             {
                 // 解析从前端接收的用户id
                 string readerId = userData["reader_id"].ToString();
-                string overdue_times = userData["overdue_times"].ToString();
-
-                string UpdateCountSql = $"Update FROM Reader WHERE reader_id = '{readerId}'";
-                db.OracleQuery(UpdateCountSql);
+                string Overdue_times = userData["overdue_times"].ToString();
+                int overdue_times = Convert.ToInt32(Overdue_times);
+                string UpdateCountSql = $"Update Reader SET overdue_times = {overdue_times} WHERE reader_id = '{readerId}'";
+                db.OracleUpdate(UpdateCountSql);
 
                 return Ok(new
                 {
@@ -303,6 +304,135 @@ namespace webapi.Controllers
                 });
             }
         }
+
+
+
+        /// <summary>
+        /// 获取反馈列表 API
+        /// </summary>
+        /// <param name="userData">包含管理员ID</param>
+        [HttpPost("initreportlist")]
+        public IActionResult InitReportList()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 构建 SQL 查询或调用服务层获取用户资料
+                string sql = $"SELECT * FROM Report";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 提取用户信息
+                    DataTable dataTable = result.Tables[0];
+                    List<Dictionary<string, string>> reports = new List<Dictionary<string, string>>();
+
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        Dictionary<string, string> report = new Dictionary<string, string>();
+
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            report[column.ColumnName] = row[column].ToString();
+                        }
+
+                        reports.Add(report);
+                    }
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        reports
+                    });
+                }
+                else
+                {
+                    // 用户不存在
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取反馈列表失败：" + ex.Message
+                });
+            }
+        }
+
+
+        /// <summary>
+        /// 获取反馈列表 API
+        /// </summary>
+        /// <param name="userData">包含管理员ID</param>
+        [HttpPost("initreservelist")]
+        public IActionResult InitReservelist()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                // 构建 SQL 查询或调用服务层获取用户资料
+                string sql = $"SELECT R.*, B.book_name, B.author FROM Reserve R JOIN Book B ON R.book_id = B.book_id WHERE R.message = '逾期未取'";
+
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    // 提取用户信息
+                    DataTable dataTable = result.Tables[0];
+                    List<Dictionary<string, string>> reservelists = new List<Dictionary<string, string>>();
+
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        Dictionary<string, string> reservelist = new Dictionary<string, string>();
+
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            reservelist[column.ColumnName] = row[column].ToString();
+                        }
+
+                        reservelists.Add(reservelist);
+                    }
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        reservelists
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取预约列表失败：" + ex.Message
+                });
+            }
+        }
+
+
+
+
+        
+
+
 
 
         [HttpGet("insertbook")]
