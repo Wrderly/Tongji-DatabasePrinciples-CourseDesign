@@ -285,7 +285,16 @@ export const initSupplierList = () =>
         url: "/AdminApi/initsupplierlist",
         method: "post",
     });
-
+// 添加供应商接口
+export const addSupplier = (SupplierObj) =>
+    requests({
+        url: "/AdminApi/initsupplierlist",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(SupplierObj),
+    });
 
 
 //// 修改书接口

@@ -1,5 +1,5 @@
 ﻿//用户api控制器，调用OracleHelper中函数向前端返回数据和状态码。
-//包括部分用户和管理员共用的功能，例如登录、查询书籍等
+//包括部分用户和管理员共用的功能，例如查询书籍等
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Net.Http.Headers;
@@ -36,6 +36,9 @@ namespace webapi.Controllers
                 "USER ID='\"" + userID + "\"';" +
                 "PASSWORD='" + userPwd + "'");
         }
+
+        #region 用户账户相关操作
+        // 包括注册、登录、用户信息显示、更改密码、注销
 
         /// <summary>
         /// 用户注册 API
@@ -333,8 +336,8 @@ namespace webapi.Controllers
                     sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                     db.OracleUpdate(sql);
 
-                    // 删除该读者的所有评论记录
-                    tempSql = doc.Root.Element("DelComments").Value;
+                    // 删除该读者的所有书评
+                    tempSql = doc.Root.Element("DelReview").Value;
                     sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                     db.OracleUpdate(sql);
 
@@ -359,7 +362,10 @@ namespace webapi.Controllers
                 });
             }
         }
-        
+
+        #endregion
+
+        #region 查找书本
 
         /// <summary>
         /// 用户查询指定书籍 API
@@ -423,6 +429,60 @@ namespace webapi.Controllers
                 return Ok(new
                 {
                     msg = "查询书名失败：" + ex.Message
+                });
+            }
+        }
+
+        #endregion
+
+        #region 预约相关操作
+        // 包括获取现有预约信息、新增预约、删除预约、处理超时预约
+
+        /// <summary>
+        /// 用户预约记录 API
+        /// </summary>
+        /// <param name="reserveData">包含预约信息</param>
+        [HttpPost("initreserve")]
+        public IActionResult initReserve([FromBody] JObject reserveData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 获取预约记录的 SQL 查询，包括相关书籍信息
+                tempSql = doc.Root.Element("ReserveInfo").Value;
+                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable reserveRecordDataTable = result.Tables[0];
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        reserves = reserveRecordDataTable
+                    });
+                }
+                else
+                {
+                    // 没有记录
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "初始化失败：" + ex.Message
                 });
             }
         }
@@ -517,55 +577,6 @@ namespace webapi.Controllers
                 return Ok(new
                 {
                     msg = "预约失败：" + ex.Message
-                });
-            }
-        }
-
-        /// <summary>
-        /// 用户预约记录 API
-        /// </summary>
-        /// <param name="reserveData">包含预约信息</param>
-        [HttpPost("initreserve")]
-        public IActionResult initReserve([FromBody] JObject reserveData)
-        {
-            if (db == null)
-            {
-                InitDB();
-            }
-
-            try
-            {
-                string tempSql, sql; // 用于拼装sql字符串的临时变量
-
-                // 获取预约记录的 SQL 查询，包括相关书籍信息
-                tempSql = doc.Root.Element("ReserveInfo").Value;
-                sql = tempSql.Replace("{reader_id}", reserveData["reader_id"].ToString());
-                DataSet result = db.OracleQuery(sql);
-
-                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
-                {
-                    DataTable reserveRecordDataTable = result.Tables[0];
-
-                    return Ok(new
-                    {
-                        status = 200,
-                        reserves = reserveRecordDataTable
-                    });
-                }
-                else
-                {
-                    // 没有记录
-                    return Ok(new
-                    {
-                        status = 0,
-                    });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    msg = "初始化失败：" + ex.Message
                 });
             }
         }
@@ -703,61 +714,10 @@ namespace webapi.Controllers
             }
         }
 
+        #endregion
 
-
-        /// <summary>
-        /// 用户借书 API
-        /// </summary>
-        /// <param name="borrowData">包含借书信息</param>
-        [HttpPost("borrowbook")]
-        public IActionResult BorrowBook([FromBody] JObject borrowData)
-        {
-            if (db == null)
-            {
-                InitDB();
-            }
-
-            try
-            {
-                string tempSql, sql; // 用于拼装sql字符串的临时变量
-
-                // 插入借书记录
-
-                tempSql = doc.Root.Element("InsertBorrow").Value;
-                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
-                             .Replace("{book_id}", borrowData["book_id"].ToString())
-                             .Replace("{borrow_date}", borrowData["borrow_date"].ToString())
-                             .Replace("{return_date}", "NULL")
-                             .Replace("{message}", borrowData["message"].ToString());
-                db.OracleUpdate(sql);
-
-                // 插入续借次数
-                // 插入借阅规则记录？
-                tempSql = doc.Root.Element("InsertRules").Value;
-                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
-                             .Replace("{book_id}", borrowData["book_id"].ToString());
-                db.OracleUpdate(sql);
-
-                //更新借阅信息
-                tempSql = doc.Root.Element("UpdateReserve").Value;
-                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
-                             .Replace("{book_id}", borrowData["book_id"].ToString())
-                             .Replace("{reserve_date}", borrowData["reserve_date"].ToString());
-                db.OracleUpdate(sql);
-
-                return Ok(new
-                {
-                    status = 200,
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    msg = "借书失败：" + ex.Message
-                });
-            }
-        }
+        #region 借书相关操作
+        // 包括初始化借书信息、借书、还书、续借、处理借阅超时
 
         /// <summary>
         /// 用户借阅记录 API
@@ -816,6 +776,59 @@ namespace webapi.Controllers
             }
         }
 
+        /// <summary>
+        /// 用户借书 API
+        /// </summary>
+        /// <param name="borrowData">包含借书信息</param>
+        [HttpPost("borrowbook")]
+        public IActionResult BorrowBook([FromBody] JObject borrowData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 插入借书记录
+
+                tempSql = doc.Root.Element("InsertBorrow").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString())
+                             .Replace("{borrow_date}", borrowData["borrow_date"].ToString())
+                             .Replace("{return_date}", "NULL")
+                             .Replace("{message}", borrowData["message"].ToString());
+                db.OracleUpdate(sql);
+
+                // 插入续借次数
+                // 插入借阅规则记录？
+                tempSql = doc.Root.Element("InsertRules").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString());
+                db.OracleUpdate(sql);
+
+                //更新借阅信息
+                tempSql = doc.Root.Element("UpdateReserve").Value;
+                sql = tempSql.Replace("{reader_id}", borrowData["reader_id"].ToString())
+                             .Replace("{book_id}", borrowData["book_id"].ToString())
+                             .Replace("{reserve_date}", borrowData["reserve_date"].ToString());
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "借书失败：" + ex.Message
+                });
+            }
+        }
 
         /// <summary>
         /// 用户还书 API
@@ -976,8 +989,6 @@ namespace webapi.Controllers
             }
         }
 
-
-
         /// <summary>
         /// 用户处理超时借书记录 API
         /// </summary>
@@ -1060,12 +1071,14 @@ namespace webapi.Controllers
             }
         }
 
+        #endregion
+
+        #region 反馈操作
 
         /// <summary>
         /// 用户反馈 API
         /// </summary>
         /// <param name="reportData">包含用户ID信息以及反馈内容</param>
-        /// 允许通过书名、作者名、ISBN号进行模糊查找
         [HttpPost("readerreport")]
         public IActionResult UserReport([FromBody] JObject reportData)
         {
@@ -1099,6 +1112,11 @@ namespace webapi.Controllers
                 });
             }
         }
+
+        #endregion
+
+        #region 书评操作
+        // 包括添加书评、删除自己的书评
 
         /// <summary>
         /// 用户评论记录 API
@@ -1149,9 +1167,6 @@ namespace webapi.Controllers
                 });
             }
         }
-
-
-
 
         /// <summary>
         /// 添加图书评论 API
@@ -1225,6 +1240,8 @@ namespace webapi.Controllers
                 });
             }
         }
+
+        #endregion
 
     }
 }

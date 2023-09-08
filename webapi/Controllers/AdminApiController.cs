@@ -5,7 +5,6 @@ using System.Data;
 using System.IO;
 using System.Text.Json;
 using System.Xml.Linq;
-using static System.Reflection.Metadata.BlobBuilder;
 
 
 namespace webapi.Controllers
@@ -33,6 +32,8 @@ namespace webapi.Controllers
                 "PASSWORD='" + adminPwd + "'");
         }
 
+        #region 管理账号相关操作
+        // 包括登录、管理账号信息、更改密码
 
         /// <summary>
         /// 管理员登录 API
@@ -47,12 +48,10 @@ namespace webapi.Controllers
             }
             try
             {
-                // 解析从前端接收的登录数据
-                string admin_name = userData["admin_name"].ToString();
-                string password = userData["password"].ToString(); // 应该在前端加密密码
-                
-                string sql = $"SELECT admin_id FROM Administrator WHERE admin_name = '{admin_name}'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                tempSql = doc.Root.Element("AdminNameConfirm").Value;
+                sql = tempSql.Replace("{admin_name}", userData["admin_name"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (!(result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0))
@@ -60,10 +59,10 @@ namespace webapi.Controllers
                     // 登录失败
                     return Ok(new
                     {
-                        msg = "用户名不存在"
+                        msg = "管理员名称不存在"
                     });
                 }
-                string tempSql = doc.Root.Element("AdminLogin").Value;
+                tempSql = doc.Root.Element("AdminLogin").Value;
                 sql = tempSql.Replace("{admin_name}", userData["admin_name"].ToString())
                              .Replace("{password}", userData["password"].ToString());
                 result = db.OracleQuery(sql);
@@ -107,7 +106,7 @@ namespace webapi.Controllers
         /// </summary>
         /// <param name="userData">包含管理员ID</param>
         [HttpPost("initadmin")]
-        public IActionResult InitAdmin([FromBody] JObject userData)
+        public IActionResult GetAdminProfile([FromBody] JObject userData)
         {
             if (db == null)
             {
@@ -115,10 +114,10 @@ namespace webapi.Controllers
             }
             try
             {
-                string admin_id = userData["admin_id"].ToString();
-                // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT * FROM Administrator WHERE admin_id = '{admin_id}'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                tempSql = doc.Root.Element("AdminProfile").Value;
+                sql = tempSql.Replace("{admin_id}", userData["admin_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -169,13 +168,13 @@ namespace webapi.Controllers
             }
             try
             {
-                // 解析从前端接收的用户数据
-                string adminId = userData["admin_id"].ToString();
-                string oldPassword = userData["oldPassword"].ToString();
-                string newPassword = userData["newPassword"].ToString();
-                string confirmNewPassword = userData["confirmNewPassword"].ToString();
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-                string sql = $"SELECT password FROM Administrator WHERE admin_id = '{adminId}'";
+                // 解析从前端接收的用户数据
+                string oldPassword = userData["oldPassword"].ToString();
+
+                tempSql = doc.Root.Element("AdminProfile").Value;
+                sql = tempSql.Replace("{admin_id}", userData["admin_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables[0].Rows[0]["password"].ToString() != oldPassword)
@@ -187,10 +186,9 @@ namespace webapi.Controllers
                 }
 
                 // 构建 SQL 查询或调用服务层更新用户密码
-                sql = $"UPDATE Administrator SET " +
-      $"password = '{newPassword}' " +
-      $"WHERE admin_id = '{adminId}'";
-
+                tempSql = doc.Root.Element("ChangePwdAd").Value;
+                sql = tempSql.Replace("{new_password}", userData["newPassword"].ToString())
+                             .Replace("{admin_id}", userData["admin_id"].ToString());
                 db.OracleUpdate(sql);
 
                 return Ok(new
@@ -207,13 +205,15 @@ namespace webapi.Controllers
             }
         }
 
+        #endregion
 
+        #region 获取信息
+        // 包括所有用户、所有反馈、所有违约预约、所有违约借阅、所有图书类型、所有购买记录、所有供应商
         /// <summary>
         /// 获取用户列表 API
         /// </summary>
-        /// <param name="userData">包含管理员ID</param>
         [HttpPost("initreaderlist")]
-        public IActionResult InitreaderList()
+        public IActionResult InitReaderList()
         {
             if (db == null)
             {
@@ -221,9 +221,9 @@ namespace webapi.Controllers
             }
             try
             {
-                // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT * FROM Reader";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                sql = doc.Root.Element("AllReader").Value;
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -269,46 +269,8 @@ namespace webapi.Controllers
         }
 
         /// <summary>
-        /// 用户违规次数 API
-        /// </summary>
-        /// <param name="userData">包含用户id</param>
-        [HttpPost("updatecount")]
-        public IActionResult UpdateCount([FromBody] JObject userData)
-        {
-            if (db == null)
-            {
-                InitDB();
-            }
-
-            try
-            {
-                // 解析从前端接收的用户id
-                string readerId = userData["reader_id"].ToString();
-                string Overdue_times = userData["overdue_times"].ToString();
-                int overdue_times = Convert.ToInt32(Overdue_times);
-                string UpdateCountSql = $"Update Reader SET overdue_times = {overdue_times} WHERE reader_id = '{readerId}'";
-                db.OracleUpdate(UpdateCountSql);
-
-                return Ok(new
-                {
-                    status = 200,
-                });
-            }
-            catch (Exception ex)
-            {
-                return Ok(new
-                {
-                    msg = "修改失败：" + ex.Message
-                });
-            }
-        }
-
-
-
-        /// <summary>
         /// 获取反馈列表 API
         /// </summary>
-        /// <param name="userData">包含管理员ID</param>
         [HttpPost("initreportlist")]
         public IActionResult InitReportList()
         {
@@ -318,9 +280,9 @@ namespace webapi.Controllers
             }
             try
             {
-                // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT * FROM Report";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                sql = doc.Root.Element("AllReport").Value;
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -365,13 +327,11 @@ namespace webapi.Controllers
             }
         }
 
-
         /// <summary>
-        /// 获取反馈列表 API
+        /// 获取已违约的预约列表 API
         /// </summary>
-        /// <param name="userData">包含管理员ID</param>
         [HttpPost("initreservelist")]
-        public IActionResult InitReservelist()
+        public IActionResult InitReserveList()
         {
             if (db == null)
             {
@@ -379,14 +339,13 @@ namespace webapi.Controllers
             }
             try
             {
-                // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT R.*, B.book_name, B.author FROM Reserve R JOIN Book B ON R.book_id = B.book_id WHERE R.message = '逾期未取'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                sql = doc.Root.Element("AllODReserve").Value;
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
-                    // 提取用户信息
                     DataTable dataTable = result.Tables[0];
                     List<Dictionary<string, string>> reservelists = new List<Dictionary<string, string>>();
 
@@ -425,13 +384,11 @@ namespace webapi.Controllers
             }
         }
 
-
         /// <summary>
-        /// 获取反馈列表 API
+        /// 获取已违约的借书列表 API
         /// </summary>
-        /// <param name="userData">包含管理员ID</param>
-        [HttpPost("initborrowslist")]
-        public IActionResult InitBorrowslist()
+        [HttpPost("initborrowlist")]
+        public IActionResult InitBorrowList()
         {
             if (db == null)
             {
@@ -439,33 +396,32 @@ namespace webapi.Controllers
             }
             try
             {
-                // 构建 SQL 查询或调用服务层获取用户资料
-                string sql = $"SELECT R.*, B.book_name, B.author FROM BorrowRecord R JOIN Book B ON R.book_id = B.book_id WHERE R.message = '逾期未还'";
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                sql = doc.Root.Element("AllODBorrow").Value;
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
-                    // 提取用户信息
                     DataTable dataTable = result.Tables[0];
-                    List<Dictionary<string, string>> borrowslists = new List<Dictionary<string, string>>();
+                    List<Dictionary<string, string>> borrowLists = new List<Dictionary<string, string>>();
 
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        Dictionary<string, string> borrowslist = new Dictionary<string, string>();
+                        Dictionary<string, string> borrowList = new Dictionary<string, string>();
 
                         foreach (DataColumn column in dataTable.Columns)
                         {
-                            borrowslist[column.ColumnName] = row[column].ToString();
+                            borrowList[column.ColumnName] = row[column].ToString();
                         }
 
-                        borrowslists.Add(borrowslist);
+                        borrowLists.Add(borrowList);
                     }
 
                     return Ok(new
                     {
                         status = 200,
-                        borrowslists
+                        borrowLists
                     });
                 }
                 else
@@ -486,10 +442,114 @@ namespace webapi.Controllers
         }
 
         /// <summary>
+        /// 获取图书类型 API
+        /// </summary>
+        [HttpPost("initbooktypelist")]
+        public IActionResult InitBkTypeList()
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                sql = doc.Root.Element("AllBkType").Value;
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable dataTable = result.Tables[0];
+                    List<Dictionary<string, string>> typeLists = new List<Dictionary<string, string>>();
+
+                    foreach (DataRow row in dataTable.Rows)
+                    {
+                        Dictionary<string, string> typeList = new Dictionary<string, string>();
+
+                        foreach (DataColumn column in dataTable.Columns)
+                        {
+                            typeList[column.ColumnName] = row[column].ToString();
+                        }
+
+                        typeLists.Add(typeList);
+                    }
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        typeLists
+                    });
+                }
+                else
+                {
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "获取借阅列表失败：" + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 查询所有购买记录 API
+        /// </summary>
+        [HttpPost("initpurchaserecord")]
+        public IActionResult InitPurchaseRecord([FromBody] JObject requestData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 获取购买记录的 SQL 查询，包括相关书籍信息
+                sql = doc.Root.Element("AllPurchaseRecord").Value;
+                DataSet result = db.OracleQuery(sql);
+
+                if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
+                {
+                    DataTable purchaseRecordDataTable = result.Tables[0];
+
+                    return Ok(new
+                    {
+                        status = 200,
+                        purchaseRecords = purchaseRecordDataTable
+                    });
+                }
+                else
+                {
+                    // 没有记录
+                    return Ok(new
+                    {
+                        status = 0,
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "初始化购买记录失败：" + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
         /// 查询所有供应商 API
         /// </summary>
-        [HttpPost("initsupplierlist")]
-        public IActionResult InitSupplierList()
+        [HttpPost("initsupplier")]
+        public IActionResult InitSupplier()
         {
             if (db == null)
             {
@@ -532,19 +592,56 @@ namespace webapi.Controllers
             }
         }
 
+        #endregion
 
+        #region 处理用户相关
+        // 包括更新用户违规次数
 
+        /// <summary>
+        /// 更新用户违规次数 API
+        /// </summary>
+        /// <param name="userData">包含用户id</param>
+        [HttpPost("updatecount")]
+        public IActionResult UpdateODTimes([FromBody] JObject userData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
 
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
+                tempSql = doc.Root.Element("UpdateODTimes").Value;
+                sql = tempSql.Replace("{overdue_times}", userData["overdue_times"].ToString())
+                             .Replace("{reader_id}", userData["reader_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+                db.OracleUpdate(sql);
 
+                return Ok(new
+                {
+                    status = 200,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    msg = "修改失败：" + ex.Message
+                });
+            }
+        }
 
+        #endregion
 
+        #region 书籍处理相关
+        // 包括插入新书、更新书籍信息、添加图书类别
 
-
-
-
-
-
+        /// <summary>
+        /// 插入新书 API
+        /// </summary>
+        /// <param name="data">包含图书信息</param>
         [HttpGet("insertbook")]
         public IActionResult InsertBook([FromBody] JObject data)
         {
@@ -552,97 +649,53 @@ namespace webapi.Controllers
             {
                 InitDB();
             }
-            XDocument doc = XDocument.Load(PublicData.programPath + "\\AdminApiSQL.xml");
-
-            string tempSql = doc.Root.Element("InsertIntoBook").Value;
-
-            string sql = tempSql.Replace("{book_id}", data["book_id"].ToString())
-                                .Replace("{num}", data["num"].ToString())
-                                .Replace("{ISBN}", data["ISBN"].ToString())
-                                .Replace("{book_name}", data["book_name"].ToString())
-                                .Replace("{author}", data["author"].ToString())
-                                .Replace("{publisher}", data["publisher"].ToString())
-                                .Replace("{publication_date}", data["publication_date"].ToString())
-                                .Replace("{introduction}", data["introduction"].ToString())
-                                .Replace("{cover_picture}", data["cover_picture"].ToString())
-                                .Replace("{price}", data["price"].ToString())
-                                .Replace("{subject_type}", data["subject_type"].ToString())
-                                .Replace("{collection_type}", data["collection_type"].ToString());
-
             try
             {
-                db.OracleUpdate(sql);
-                return Ok(new
-                {
-                    result = 1
-                });
-            }
-            catch
-            {
-                return Ok(new
-                {
-                    result = 0
-                });
-            }
-        }
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
 
-        [HttpGet("selectbookbyname")]
-        public IActionResult SelectBookByName([FromBody] JObject data)
-        {
-            if (db == null)
-            {
-                InitDB();
-            }
-            /**
-            string book_name = data["book_name"].ToString();
-            string subject_type = data["subject_type"].ToString();
-            string collection_type = data["collection_type"].ToString();
-            string ISBN = data["ISBN"].ToString();
-
-
-            string sql = "SELECT *" +
-                         "FROM BOOK" +
-                         $"WHERE BOOK.book_name = {book_name}" +
-                         (subject_type == "default" ? "" : $"AND BOOK.subject_type = {subject_type}") +
-                         (collection_type == "default" ? "" : $"AND BOOK.collection_type = {collection_type}") +
-                         (ISBN == "default" ? "" : $"AND BOOK.ISBN = {ISBN}");
-            /**/
-
-            string book_name = data["book_name"].ToString();
-            string subject_type = data["subject_type"].ToString();
-            string collection_type = data["collection_type"].ToString();
-            string ISBN = data["ISBN"].ToString();
-
-            List<string> whereClauses = new List<string>();
-            whereClauses.Add($"BOOK.book_name = '{book_name}'");
-            if (subject_type != "default") whereClauses.Add($"BOOK.subject_type = '{subject_type}'");
-            if (collection_type != "default") whereClauses.Add($"BOOK.collection_type = '{collection_type}'");
-            if (ISBN != "default") whereClauses.Add($"BOOK.ISBN = '{ISBN}'");
-
-            string sql =
-                "SELECT * FROM BOOK WHERE " +
-                string.Join(" AND ", whereClauses);
-
-
-
-            try
-            {
+                // 检查该ISBN书籍是否已存在
+                tempSql = doc.Root.Element("ISBNConfirm").Value;
+                sql = tempSql.Replace("{ISBN}", data["ISBN"].ToString());
                 DataSet result = db.OracleQuery(sql);
+
+                int ISBNCount = Convert.ToInt32(result.Tables[0].Rows[0][0]);
+                if (ISBNCount > 0)
+                {
+                    return Ok(new
+                    {
+                        msg = "该ISBN对应书籍已存在"
+                    });
+                }
+
+                // 更新书籍信息
+                tempSql = doc.Root.Element("InsertBk").Value;
+                sql = tempSql.Replace("{book_name}", data["book_name"].ToString())
+                             .Replace("{ISBN}", data["ISBN"].ToString())
+                             .Replace("{author}", data["author"].ToString())
+                             .Replace("{publisher}", data["publisher"].ToString())
+                             .Replace("{publication_date}", data["publication_date"].ToString())
+                             .Replace("{introduction}", data["introduction"].ToString())
+                             .Replace("{collection_type}", data["collection_type"].ToString());
+                db.OracleUpdate(sql);
+
                 return Ok(new
                 {
-                    result = true,
-                    dataset = result
+                    status = 200
                 });
             }
-            catch
+            catch(Exception ex)
             {
                 return Ok(new
                 {
-                    result = false
+                    msg = "插入书籍失败：" + ex.Message
                 });
             }
         }
 
+        /// <summary>
+        /// 更新图书信息 API
+        /// </summary>
+        /// <param name="data">包含图书信息</param>
         [HttpGet("updatebook")]
         public IActionResult UpdateBook([FromBody] JObject data)
         {
@@ -650,116 +703,202 @@ namespace webapi.Controllers
             {
                 InitDB();
             }
-
-            /**
-            string book_id = data["book_id"].ToString();
-            string num = data["num"].ToString();
-            string ISBN = data["ISBN"].ToString();
-            string book_name = data["book_name"].ToString();
-            string author = data["author"].ToString();
-            string publisher = data["publisher"].ToString();
-            string publication_date = data["publication_date"].ToString();
-            string introduction = data["introduction"].ToString();
-            string cover_picture = data["cover_picture"].ToString();
-            string price = data["price"].ToString();
-            string subject_type = data["subject_type"].ToString();
-            string collection_type = data["collection_type"].ToString();
-
-            string sql =
-                "UPDATE BOOK " +
-                "SET " +
-                (num == "default" ? "" : $"num = {num},") +
-                (ISBN == "default" ? "" : $"ISBN = {ISBN},") +
-                (book_name == "default" ? "" : $"book_name = {book_name},") +
-                (author == "default" ? "" : $"author = {author},") +
-                (publisher == "default" ? "" : $"publisher = {publisher},") +
-                (publication_date == "default" ? "" : $"publication_date = {publication_date},") +
-                (introduction == "default" ? "" : $"introduction = {introduction},") +
-                (cover_picture == "default" ? "" : $"cover_picture = {cover_picture},") +
-                (price == "default" ? "" : $"price = {price},") +
-                (subject_type == "default" ? "" : $"subject_type = {subject_type},") +
-                (collection_type == "default" ? "" : $"collection_type = {collection_type}") +
-                $"WHERE book_id = {book_id}";
-            /**/
-
-            string book_id = data["book_id"].ToString();
-            string num = data["num"].ToString();
-            string ISBN = data["ISBN"].ToString();
-            string book_name = data["book_name"].ToString();
-            string author = data["author"].ToString();
-            string publisher = data["publisher"].ToString();
-            string publication_date = data["publication_date"].ToString();
-            string introduction = data["introduction"].ToString();
-            string cover_picture = data["cover_picture"].ToString();
-            string price = data["price"].ToString();
-            string subject_type = data["subject_type"].ToString();
-            string collection_type = data["collection_type"].ToString();
-
-            List<string> setClauses = new List<string>();
-            if (num != "default") setClauses.Add($"num = '{num}'");
-            if (ISBN != "default") setClauses.Add($"ISBN = '{ISBN}'");
-            if (book_name != "default") setClauses.Add($"book_name = '{book_name}'");
-            if (author != "default") setClauses.Add($"author = '{author}'");
-            if (publisher != "default") setClauses.Add($"publisher = '{publisher}'");
-            if (publication_date != "default") setClauses.Add($"publication_date = '{publication_date}'");
-            if (introduction != "default") setClauses.Add($"introduction = '{introduction}'");
-            if (cover_picture != "default") setClauses.Add($"cover_picture = '{cover_picture}'");
-            if (price != "default") setClauses.Add($"price = '{price}'");
-            if (subject_type != "default") setClauses.Add($"subject_type = '{subject_type}'");
-            if (collection_type != "default") setClauses.Add($"collection_type = '{collection_type}'");
-
-            string sql =
-                "UPDATE BOOK SET " +
-                string.Join(", ", setClauses) +
-                $" WHERE book_id = '{book_id}'";
-
-
             try
             {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                tempSql = doc.Root.Element("UpdateBk").Value;
+                sql = tempSql.Replace("{book_id}", data["book_id"].ToString())
+                             .Replace("{book_name}", data["book_name"].ToString())
+                             .Replace("{book_name}", data["book_name"].ToString())
+                             .Replace("{ISBN}", data["ISBN"].ToString())
+                             .Replace("{author}", data["author"].ToString())
+                             .Replace("{publisher}", data["publisher"].ToString())
+                             .Replace("{publication_date}", data["publication_date"].ToString())
+                             .Replace("{introduction}", data["introduction"].ToString())
+                             .Replace("{collection_type}", data["collection_type"].ToString());
                 db.OracleUpdate(sql);
+
                 return Ok(new
                 {
-                    result = 1
+                    status = 200
                 });
             }
-            catch
+            catch (Exception ex)
             {
                 return Ok(new
                 {
-                    result = 0
+                    msg = "更新失败：" + ex.Message
                 });
             }
         }
 
-        [HttpGet("getborrowrecord")]
-        public IActionResult getBorrowRecord([FromBody] JObject data)
+        /// <summary>
+        /// 添加图书类别 API
+        /// </summary>
+        /// <param name="collectionTypeData">包含图书类别信息</param>
+        [HttpPost("addcollectiontype")]
+        public IActionResult AddCollectionType([FromBody] JObject collectionTypeData)
         {
             if (db == null)
             {
                 InitDB();
             }
-            string reader_id = data["reader_id"].ToString();
-            string sql =
-                "SELECT reader_id,book_id,book_name,borrow_date,return_date" +
-                "FROM BorrowRecord as BR,Book as B,ReturnRecord as RR" +
-                "WHERE BR.book_id = B.book_id AND BR.book_id = RR.book_id" + reader_id == "default" ? "" : (" AND BR.raeder_id = " + reader_id);
 
             try
             {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 检查是否已存在相同的供应商名称
+                tempSql = doc.Root.Element("CheckCollectionTypeExistence").Value;
+                sql = tempSql.Replace("{collection_type}", collectionTypeData["collection_type"].ToString());
                 DataSet result = db.OracleQuery(sql);
+
+                int existingCount = Convert.ToInt32(result.Tables[0].Rows[0][0]);
+                if (existingCount > 0)
+                {
+                    return Ok(new
+                    {
+                        status = 400,
+                        msg = "图书类别已存在"
+                    });
+                }
+
+                tempSql = doc.Root.Element("InsertCollectionType").Value;
+                sql = tempSql.Replace("{collection_type}", collectionTypeData["collection_type"].ToString())
+                             .Replace("{note}", collectionTypeData["note"].ToString());
+                db.OracleUpdate(sql);
+
                 return Ok(new
                 {
-                    result = true,
-                    dataset = result
+                    status = 200,
+                    msg = "图书类别添加成功"
                 });
             }
-            catch
+            catch (Exception ex)
             {
                 return Ok(new
                 {
-                    result = false
+                    status = 500,
+                    msg = "图书类别添加失败：" + ex.Message
                 });
             }
         }
+
+        #endregion
+
+        #region 书籍供应相关
+        // 包括添加供应商、添加购买记录
+
+        /// <summary>
+        /// 添加供应商 API
+        /// </summary>
+        /// <param name="supplierData">包含供应商信息</param>
+        [HttpPost("addsupplier")]
+        public IActionResult AddSupplier([FromBody] JObject supplierData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                // 检查是否已存在相同的供应商名称
+                tempSql = doc.Root.Element("CheckSupplierExistence").Value;
+                sql = tempSql.Replace("{supplier_name}", supplierData["supplier_name"].ToString());
+                DataSet result = db.OracleQuery(sql);
+
+                int existingCount = Convert.ToInt32(result.Tables[0].Rows[0][0]);
+                if (existingCount > 0)
+                {
+                    return Ok(new
+                    {
+                        status = 400,
+                        msg = "供应商名称已存在"
+                    });
+                }
+
+                tempSql = doc.Root.Element("InsertSupplier").Value;
+                sql = tempSql.Replace("{supplier_name}", supplierData["supplier_name"].ToString())
+                             .Replace("{phone_number}", supplierData["phone_number"].ToString())
+                             .Replace("{email}", supplierData["email"].ToString())
+                             .Replace("{address}", supplierData["address"].ToString());
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = 500,
+                    msg = "供应商添加失败：" + ex.Message
+                });
+            }
+        }
+
+        /// <summary>
+        /// 添加购买记录 API
+        /// </summary>
+        /// <param name="purchaseData">包含图书类别信息</param>
+        [HttpPost("addpurchaserecord")]
+        public IActionResult AddPurchaseRecord([FromBody] JObject purchaseData)
+        {
+            if (db == null)
+            {
+                InitDB();
+            }
+
+            try
+            {
+                string tempSql, sql; // 用于拼装sql字符串的临时变量
+
+                decimal totalPrice = Convert.ToDecimal(purchaseData["unit_price"]) * Convert.ToInt32(purchaseData["quantity"]);
+
+                // 构建 SQL 插入购买记录语句
+                tempSql = doc.Root.Element("InsertPurchaseRecord").Value;
+                sql = tempSql.Replace("{admin_id}", purchaseData["admin_id"].ToString())
+                             .Replace("{supplier_id}", purchaseData["supplier_id"].ToString())
+                             .Replace("{book_id}", purchaseData["book_id"].ToString())
+                             .Replace("{purchase_date}", purchaseData["now_time"].ToString())
+                             .Replace("{quantity}", purchaseData["quantity"].ToString())
+                             .Replace("{unit_price}", purchaseData["unit_price"].ToString())
+                             .Replace("{total_price}", totalPrice.ToString())
+                             .Replace("{is_approved}", "1");
+
+                // 执行插入操作
+                db.OracleUpdate(sql);
+
+                tempSql = doc.Root.Element("BkCountUpdate").Value;
+                sql = tempSql.Replace("{book_id}", purchaseData["book_id"].ToString())
+                             .Replace("{num}", "num + " + purchaseData["quantity"].ToString());
+
+                // 执行更新图书数量操作
+                db.OracleUpdate(sql);
+
+                return Ok(new
+                {
+                    status = 200,
+                    msg = "购买记录添加成功"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new
+                {
+                    status = 500,
+                    msg = "购买记录添加失败：" + ex.Message
+                });
+            }
+        }
+
+        #endregion
+
     }
 }

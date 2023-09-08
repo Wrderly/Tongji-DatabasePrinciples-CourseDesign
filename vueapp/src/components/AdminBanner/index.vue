@@ -35,15 +35,11 @@
                 <i class="el-icon-chat-line-round"></i>
                 <span slot="title">用户反馈</span>
             </el-menu-item>
-            <el-menu-item index="5" @click="$router.push('/home/buybook')">
-                <i class="el-icon-shopping-cart-full"></i>
-                <span slot="title">书籍购买</span>
-            </el-menu-item>
-            <el-menu-item index="6" @click="$router.push('/home/supplierinfor')">
+            <el-menu-item index="5" @click="$router.push('/home/supplierinfor')">
                 <i class="el-icon-s-data"></i>
                 <span slot="title">供应商信息</span>
             </el-menu-item>
-            <el-submenu index="7">
+            <el-submenu index="6">
                 <template slot="title">
                     <i class="el-icon-user-solid"></i>
                     <span>用户</span>
