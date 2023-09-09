@@ -12,7 +12,7 @@
 		phone_number VARCHAR(20),
 		email VARCHAR(100),
 		account VARCHAR(50) NOT NULL,
-		password VARCHAR(50) NOT NULL
+		password VARCHAR(300) NOT NULL
 		)
 	</Query>
 	<Query name="CreateTable1">
@@ -52,7 +52,8 @@
 		address VARCHAR(200),
 		reader_type VARCHAR(50),
 		account VARCHAR(50) NOT NULL,
-		password VARCHAR(50) NOT NULL,
+		password VARCHAR(300) NOT NULL,
+		overdue_times INTEGER,
 		FOREIGN KEY (reader_type) REFERENCES ReaderType(reader_type)
 		)
 	</Query>
@@ -63,14 +64,8 @@
 		ISBN VARCHAR(20) NOT NULL,
 		book_name VARCHAR(100) NOT NULL,
 		author VARCHAR(100) NOT NULL,
-		publisher VARCHAR(100),
-		publication_date DATE,
 		introduction VARCHAR(200),
-		cover_picture VARCHAR(200),
-		price DECIMAL(10, 2),
-		subject_type VARCHAR(50),
 		collection_type VARCHAR(50),
-		FOREIGN KEY (subject_type) REFERENCES SubjectType(subject_type),
 		FOREIGN KEY (collection_type) REFERENCES CollectionType(collection_type)
 		)
 	</Query>
@@ -80,7 +75,7 @@
 		admin_id INTEGER,
 		supplier_id INTEGER,
 		book_id INTEGER,
-		purchase_date DATE,
+		purchase_date VARCHAR(50),
 		quantity INTEGER,
 		unit_price DECIMAL(10, 2),
 		total_price DECIMAL(10, 2),
@@ -94,7 +89,9 @@
 		CREATE TABLE BorrowRecord (
 		book_id INTEGER,
 		reader_id INTEGER,
-		borrow_date DATE,
+		borrow_date varchar(50),
+		return_date varchar(50),
+		message varchar(200),
 		FOREIGN KEY (book_id) REFERENCES Book(book_id),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)
@@ -103,7 +100,7 @@
 		CREATE TABLE Reserve (
 		book_id INTEGER,
 		reader_id INTEGER,
-		reserve_date DATE,
+		reserve_date varchar(50),
 		message varchar(200),
 		FOREIGN KEY (book_id) references book(book_id),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
@@ -113,32 +110,27 @@
 		CREATE TABLE ReturnRecord (
 		book_id INTEGER,
 		reader_id INTEGER,
-		return_date DATE,
+		return_date varchar(50),
 		FOREIGN KEY (book_id) REFERENCES Book(book_id),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)
 	</Query>
 	<Query name="CreateTable11">
-		CREATE TABLE Serve (
-		admin_id INTEGER,
+		CREATE TABLE Report (
 		reader_id INTEGER,
-		serve_date DATE,
-		type VARCHAR(50),
-		feedback VARCHAR(200),
-		FOREIGN KEY (admin_id) REFERENCES Administrator(admin_id),
+		report_date VARCHAR(50),
+		feedback VARCHAR(1000),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)
 	</Query>
 	<Query name="CreateTable12">
 		CREATE TABLE Rule (
-		collection_type VARCHAR(50),
-		reader_type VARCHAR(50),
+		reader_id INTEGER,
+		book_id INTEGER,
 		time_limit INTEGER,
-		max_books INTEGER,
-		max_renew INTEGER,
-		overdue_fine DECIMAL(10, 2),
-		FOREIGN KEY (collection_type) REFERENCES CollectionType(collection_type),
-		FOREIGN KEY (reader_type) REFERENCES ReaderType(reader_type)
+		renew_time INTEGER,
+		FOREIGN KEY (book_id) REFERENCES Book(book_id),
+		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id)
 		)
 	</Query>
 	<Query name="CreateTable13">
@@ -147,9 +139,49 @@
 		reader_id INTEGER,
 		book_id INTEGER,
 		review_text VARCHAR(200),
-		review_date DATE,
+		review_date VARCHAR(50),
 		FOREIGN KEY (reader_id) REFERENCES Reader(reader_id),
 		FOREIGN KEY (book_id) REFERENCES Book(book_id)
 		)
+	</Query>
+	<Query name="CreateSeq0">
+		CREATE SEQUENCE reader_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq1">
+		CREATE SEQUENCE book_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq2">
+		CREATE SEQUENCE supplier_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq3">
+		CREATE SEQUENCE review_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
+	</Query>
+	<Query name="CreateSeq4">
+		CREATE SEQUENCE purchase_id_seq
+		INCREMENT BY 1
+		START WITH 1
+		MAXVALUE 999999999
+		NOCYCLE
+		NOCACHE
 	</Query>
 </Queries>

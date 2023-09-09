@@ -20,14 +20,15 @@ const actions = {
         initBorrowslist().then(res=>{
             console.log(res);
             
-        commit('INITBORROWSLIST',res.data)
+            commit('INITBORROWSLIST', res.borrowslists)
         },err=>console.log(err.message))
     },
-    initBorrows({commit},data){
-        console.log('borrow',data);
-        initBorrows(data).then(res=>{
+    initBorrows({ commit }, readerObj) {
+        console.log(readerObj);
+        let newObj = readerObj
+        initBorrows(newObj).then(res=>{
             console.log(res);
-        commit('INITBORROWS',res.data)
+            commit('INITBORROWS', res.borrows)
         },err=>{
             console.log(err.message);
         })
@@ -37,11 +38,13 @@ const actions = {
 const mutations = {
     INITBORROWSLIST(state,data){
         // 管理员保存借书记录的数组
+        data = data || [];
         state.borrowsList = data
     },
     INITBORROWS(state,data){
         // 读者保存自己的记录
-        state.borrows = data
+        data = data || [];
+        state.borrows = data;
     }
 }
 

@@ -3,15 +3,22 @@ import VueRouter from "vue-router";
 
 Vue.use(VueRouter);
 
-import LoginRegister from "@/pages/LoginRegister";
-import Home from "@/pages/Home";
-import Userhome from "@/pages/Home/Userhome";
-import SearchBooks from "@/pages/Home/SearchBooks";
-import ReaderBorrows from "@/pages/Home/ReaderBorrows";
-import ReaderRserve from "@/pages/Home/ReaderRserve";
-import Comment from "@/pages/Home/Comment";
-import ReaderReport from "@/pages/Home/ReaderReport";
-import ReaderInfor from "@/pages/Home/ReaderInfor";
+import LoginRegister from "../pages/LoginRegister/index.vue";
+import Home from "../pages/Home/index.vue";
+import Userhome from "../pages/Home/Userhome/index.vue";
+import SearchBooks from "../pages/Home/SearchBooks/index.vue";
+import ReaderBorrows from "../pages/Home/ReaderBorrows/index.vue";
+import ReaderReserve from "../pages/Home/ReaderReserve/index.vue";
+import Comment from "../pages/Home/Comment/index.vue";
+import ReaderReport from "../pages/Home/ReaderReport/index.vue";
+import UserInfor from "../pages/Home/UserInfor/index.vue";
+import Person from "../pages/Home/Person/index.vue";
+import AdminReport from "../pages/Home/AdminReport/index.vue";
+import AdminReserve from "../pages/Home/AdminReserve/index.vue";
+import AdminBorrows from "../pages/Home/AdminBorrows/index.vue";
+import BuyBook from "../pages/Home/BuyBook/index.vue";
+import SupplierInfor from "../pages/Home/SupplierInfor/index.vue";
+
 
 export default new VueRouter({
   routes: [
@@ -33,7 +40,7 @@ export default new VueRouter({
         },
         {
           //    主页介绍
-          path: "Userhome",
+          path: "userhome",
           component: Userhome,
         },
         {
@@ -55,7 +62,7 @@ export default new VueRouter({
         {
           //    读者预约记录
           path: "readerreserve",
-          component: ReaderRserve,
+          component: ReaderReserve,
         },
         {
           //     读者举报反馈
@@ -63,10 +70,40 @@ export default new VueRouter({
           component: ReaderReport,
         },
         {
-          //     读者个人信息
-          path: "ReaderInfor",
-          component: ReaderInfor,
-        },
+          //     个人信息
+            path: "userinfor",
+            component: UserInfor,
+          },
+          {
+              //     人员管理
+              path: "person",
+              component: Person,
+          },
+          {
+              //     管理员反馈
+              path: "adminreport",
+              component: AdminReport,
+          },
+          {
+              //     管理员预约记录
+              path: "adminreserve",
+              component: AdminReserve,
+          },
+          {
+              //     管理员借书记录
+              path: "adminborrows",
+              component: AdminBorrows,
+          },
+          {
+              //     管理员购买记录
+              path: "buybook",
+              component: BuyBook,
+          },
+          {
+              //     供应商记录
+              path: "supplierinfor",
+              component: SupplierInfor,
+          }
       ],
     },
   ],

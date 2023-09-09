@@ -104,7 +104,7 @@ public class OracleHelper
             OracleClose();
             throw new Exception("An error occurred while querying the database.", ex);
         }
-
+        // 检查结果是否为空，如果为空，则返回 null
         return dataSet;
     }
 }

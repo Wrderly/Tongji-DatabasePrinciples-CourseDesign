@@ -12,10 +12,13 @@ const state = {
 // prise:0
 
 const actions = {
-    initCommentsList({commit}){
-        initCommentsList().then(res=>{
+    initCommentsList({ commit }, data) {
+        let BOOKobj = {
+            book_id: data
+        };
+        initCommentsList(BOOKobj).then(res=>{
             console.log(res);
-        commit('INITCOMMENTSLIST',res.data)
+        commit('INITCOMMENTSLIST',res.comments)
         },err=>console.log(err.message))
     }
 }
@@ -23,10 +26,9 @@ const actions = {
 const mutations = {
     INITCOMMENTSLIST(state,data){
         // 保存评论区数组
-        data = data || []
-        state.commentsList = data.filter(item=>{
-            return item.status == 1
-        })
+        state.commentsList = [];
+        data = data || [];
+        state.commentsList = data;
     }
 }
 

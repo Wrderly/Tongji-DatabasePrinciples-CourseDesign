@@ -1,5 +1,4 @@
 import {initReservelist,initReserve} from '@/api'
-import qs from "qs" 
 
 const state = {
    reserveList:[],
@@ -11,15 +10,15 @@ const actions = {
         initReservelist().then(res=>{
             console.log(res);
             
-        commit('INITRESERVELIST',res.data)
+            commit('INITRESERVELIST', res.reservelists)
         },err=>console.log(err.message))
     },
     initReserve({commit},readerObj){
-        console.log(qs.stringify(readerObj));
-        let newObj = qs.stringify(readerObj)
+        console.log(readerObj);
+        let newObj = readerObj
         initReserve(newObj).then(res=>{
             console.log(res);
-        commit('INITRESERVE',res.data)
+        commit('INITRESERVE',res.reserves)
         },err=>{
             console.log(err.message);
         })
@@ -30,16 +29,13 @@ const actions = {
 const mutations = {
     INITRESERVELIST(state,data){
         // 管理员保存预订图书记录
-        state.reserveList = data
+        data = data || [];
+        state.reserveList = data;
     },
-    INITRESERVE(state,data){
+    INITRESERVE(state, data) {
+        data = data || [];
         // 读者保存预订图书记录
-        state.reserve = data||[]
-        state.reserve.forEach((element,index)=>{
-            element.bookName = '《'+element.bookName+'》'
-        }
-            
-        )
+        state.reserve = data; 
     }
 }
 

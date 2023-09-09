@@ -1,27 +1,34 @@
-import {initBooksList} from '@/api'
-import Vue from 'vue'
+import { searchBook } from '@/api'
 const state = {
    booksList:[],
 }
 
 const actions = {
-    initBooksList({commit}){
-        initBooksList().then(res=>{
+    initBooksList({ commit }) {
+        let data = {
+            searchStr:""
+        }
+        searchBook(data).then(res=>{
             console.log(res);
             
             if(res.status == 200)
-                commit('INITBOOKSLIST',res.data)
+                commit('INITBOOKSLIST',res.books)
         },err=>console.log(err.message))
     }
 }
 
 const mutations = {
   
-    INITBOOKSLIST(state,data){
+    INITBOOKSLIST(state, data) {
+        data = data || [];
+        state.booksList = data;
+        console.log(state.booksList);
+        /*
         data = data || []
         state.booksList = data.filter(item=>{
             return item.status == 1
         })
+        */
     }
 
 

@@ -1,20 +1,12 @@
-import {initReportList,initStuReport} from '@/api'
-import qs from 'qs';
+import {initReportList} from '@/api'
 const state = {
-  reportList:[],
-  stuReport:[]
+  reportList:[]
 }
 
 const actions = {
     initReportList({commit}){
         initReportList().then(res=>{
-            commit('INITREPORTLIST',res.data)
-        },err=>console.log(err.message))
-    },
-    initStuReport({commit},data){
-        initStuReport(qs.stringify(data)).then(res=>{
-            console.log('学生举报记录',res);
-            commit('INITSTUREPORT',res.data)
+            commit('INITREPORTLIST',res.reports)
         },err=>{
             console.log(err.message);
         })
@@ -23,13 +15,10 @@ const actions = {
 }
 
 const mutations = {
-    INITREPORTLIST(state,data){
-        // 保存举报区数组
-        state.reportList = data
+    INITREPORTLIST(state, data) {
+        data = data || [];
+        state.reportList = data;
     },
-    INITSTUREPORT(state,data){
-        state.stuReport = data
-    }
 }
 
 const getters = {

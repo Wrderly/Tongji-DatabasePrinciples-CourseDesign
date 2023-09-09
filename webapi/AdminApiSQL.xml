@@ -1,12 +1,162 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Queries>
+	<!-- 管理名确认 -->
+	<AdminNameConfirm>
+		SELECT admin_id
+		FROM Administrator
+		WHERE admin_name = '{admin_name}'
+	</AdminNameConfirm>
+	
+	<!-- 管理名登录 -->
+	<AdminLogin>
+		SELECT *
+		FROM Administrator
+		WHERE admin_name = '{admin_name}'
+		AND password = '{password}'
+	</AdminLogin>
+
+	<!-- 管理员信息 -->
+	<AdminProfile>
+		SELECT *
+		FROM Administrator
+		WHERE admin_id = '{admin_id}'
+	</AdminProfile>
+
+	<!-- 密码更改 -->
+	<ChangePwdAd>
+		UPDATE Administrator SET
+		password = '{new_password}'
+		WHERE admin_id = '{admin_id}'
+	</ChangePwdAd>
+
+	<!-- 显示所有读者 -->
+	<AllReader>
+		SELECT *
+		FROM Reader
+	</AllReader>
+
+	<!-- 显示所有反馈 -->
+	<AllReport>
+		SELECT *
+		FROM Report
+	</AllReport>
+
+	<!-- 显示所有逾期未取记录 -->
+	<AllODReserve>
+		SELECT R.*, B.book_name, B.author
+		FROM Reserve R
+		JOIN Book B
+		ON R.book_id = B.book_id
+		WHERE R.message = '逾期未取'
+	</AllODReserve>
+
+	<!-- 显示所有逾期未还记录 -->
+	<AllODBorrow>
+		SELECT R.*, B.book_name, B.author
+		FROM BorrowRecord R
+		JOIN Book B
+		ON R.book_id = B.book_id
+		WHERE R.message = '逾期未还'
+	</AllODBorrow>
+
+	<!-- 所有图书类别 -->
+	<AllBkType>
+		SELECT *
+		FROM CollectionType
+	</AllBkType>
+
+	<!-- 更新违规次数 -->
+	<UpdateODTimes>
+		Update Reader
+		SET overdue_times = {overdue_times}
+		WHERE reader_id = '{reader_id}'
+	</UpdateODTimes>
+
+	<!-- 插入前确认ISBN不存在 -->
+	<ISBNConfirm>
+		SELECT COUNT(*)
+		FROM Book
+		WHERE ISBN = '{ISBN}'
+	</ISBNConfirm>
+	
+	<!-- 插入新书 -->
+	<InsertBk>
+		INSERT INTO Book (book_id, num, ISBN, book_name, author, introduction, collection_type)
+		VALUES (book_id_seq.nextval, 0, '{ISBN}', '{book_name}', '{author}', '{introduction}', '{collection_type}')
+	</InsertBk>
+
+	<!-- 更新书籍信息 -->
+	<UpdateBk>
+		UPDATE Book
+		SET book_name = '{book_name}', ISBN = '{ISBN}', author = '{author}', introduction = '{introduction}', collection_type = '{collection_type}'
+		WHERE book_id = '{book_id}'
+	</UpdateBk>
+
+	<!-- 确认供应商 -->
+	<CheckSupplierExistence>
+		SELECT COUNT(*)
+		FROM Supplier
+		WHERE supplier_name = '{supplier_name}'
+	</CheckSupplierExistence>
+
+	<!-- 确认图书类别 -->
+	<CheckCollectionTypeExistence>
+		SELECT COUNT(*)
+		FROM CollectionType
+		WHERE collection_type = '{collection_type}'
+	</CheckCollectionTypeExistence>
+
+	<!-- 插入供应商 -->
+	<InsertSupplier>
+		INSERT INTO Supplier (supplier_id, supplier_name, phone_number, email, address)
+		VALUES (supplier_id_seq.nextval, '{supplier_name}', '{phone_number}', '{email}', '{address}')
+	</InsertSupplier>
+	
+	<!-- 插入图书类别 -->
+	<InsertCollectionType>
+		INSERT INTO CollectionType (collection_type, note)
+		VALUES ('{collection_type}', '{note}')
+	</InsertCollectionType>
+
+	<!-- 插入前确认book_id存在 -->
+	<BookConfirm>
+		SELECT COUNT(*)
+		FROM Book
+		WHERE book_id = '{book_id}'
+	</BookConfirm>
+	
+	<!-- 插入购买记录 -->
+	<InsertPurchaseRecord>
+		INSERT INTO PurchaseRecord (purchase_id, admin_id, supplier_id, book_id, purchase_date, quantity, unit_price, total_price, is_approved)
+		VALUES (purchase_id_seq.nextval, {admin_id}, {supplier_id}, {book_id}, '{purchase_date}', {quantity}, {unit_price}, {total_price}, {is_approved})
+	</InsertPurchaseRecord>
+
+	<!-- 更新书籍数量(插入购买记录时) -->
+	<BkCountUpdate>
+		UPDATE Book
+		SET num = {num}
+		WHERE book_id = '{book_id}'
+	</BkCountUpdate>
+
+	<!-- 所有购买记录 -->
+	<AllPurchaseRecord>
+		SELECT P.*, B.book_name
+		FROM PurchaseRecord P
+		JOIN Book B
+		ON P.book_id = B.book_id
+		WHERE P.supplier_id = '{supplier_id}'
+	</AllPurchaseRecord>
+
+	<!-- 所有供应商 -->
+	<AllSupplier>
+		SELECT *
+		FROM Supplier
+	</AllSupplier>
+
 	<SelectFromTable>
 		SELECT {columns}
 		FROM {table}
 		WHERE {conditions}
 	</SelectFromTable>
-	<InsertIntoBook>
-		INSERT INTO book (book_id, num, ISBN, book_name, author, publisher, publication_date, introduction, cover_picture, price, subject_type, collection_type)
-		VALUES ('{book_id}', '{num}', '{ISBN}', '{book_name}', '{author}', '{publisher}', '{publication_date}', '{introduction}', '{cover_picture}', '{price}', '{subject_type}', '{collection_type}')
-	</InsertIntoBook>
+	
 </Queries>
