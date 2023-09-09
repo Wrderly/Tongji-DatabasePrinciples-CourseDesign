@@ -406,9 +406,6 @@ namespace webapi.Controllers
 
                         books.Add(book);
                     }
-
-
-
                     return Ok(new
                     {
                         status = 200,
