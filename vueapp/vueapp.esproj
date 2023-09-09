@@ -25,5 +25,7 @@
     <Folder Include="src\pages\Home\AdminBorrows\" />
     <Folder Include="src\pages\Home\SupplierInfor\" />
     <Folder Include="src\store\Suppliers\" />
+    <Folder Include="src\store\BuyBooks\" />
+    <Folder Include="src\store\BookTypes\" />
   </ItemGroup>
 </Project>

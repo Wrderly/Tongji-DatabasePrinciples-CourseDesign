@@ -64,11 +64,7 @@
 		ISBN VARCHAR(20) NOT NULL,
 		book_name VARCHAR(100) NOT NULL,
 		author VARCHAR(100) NOT NULL,
-		publisher VARCHAR(100),
-		publication_date VARCHAR(50),
 		introduction VARCHAR(200),
-		cover_picture VARCHAR(200),
-		price DECIMAL(10, 2),
 		collection_type VARCHAR(50),
 		FOREIGN KEY (collection_type) REFERENCES CollectionType(collection_type)
 		)
@@ -79,7 +75,7 @@
 		admin_id INTEGER,
 		supplier_id INTEGER,
 		book_id INTEGER,
-		purchase_date DATE,
+		purchase_date VARCHAR(50),
 		quantity INTEGER,
 		unit_price DECIMAL(10, 2),
 		total_price DECIMAL(10, 2),

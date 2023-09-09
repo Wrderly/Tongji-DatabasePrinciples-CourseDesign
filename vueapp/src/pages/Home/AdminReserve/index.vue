@@ -35,20 +35,20 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-export default {
-  name: "ReaderReserve",
-  computed: {
-    ...mapState({
-        reserveList(state) {
-            return state.Reserve.reserveList;
-      },
-    }),
-  },
-   mounted() {
-       this.$store.dispatch("initReserveList");
-  },
-};
+    import { mapState } from "vuex";
+    export default {
+        name: "ReaderReserve",
+        computed: {
+            ...mapState({
+                reserveList(state) {
+                    return state.Reserve.reserveList;
+                },
+            }),
+        },
+        mounted() {
+            this.$store.dispatch("initReserveList");
+        },
+    };
 </script>
 
 <style lang="less" scoped></style>

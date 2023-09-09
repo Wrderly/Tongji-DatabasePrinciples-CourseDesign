@@ -53,7 +53,7 @@
 	<!-- 显示所有逾期未还记录 -->
 	<AllODBorrow>
 		SELECT R.*, B.book_name, B.author
-		FROM Borrow R
+		FROM BorrowRecord R
 		JOIN Book B
 		ON R.book_id = B.book_id
 		WHERE R.message = '逾期未还'
@@ -78,17 +78,18 @@
 		FROM Book
 		WHERE ISBN = '{ISBN}'
 	</ISBNConfirm>
+	
 	<!-- 插入新书 -->
 	<InsertBk>
-		INSERT INTO Book (book_id, num, book_name, ISBN, author, publisher, publication_date, introduction, collection_type)
-		VALUES (book_id_seq.nextval, 0, '{book_name}', '{ISBN}', '{author}', '{publisher}', '{publication_date}', '{introduction}', '{collection_type}')
+		INSERT INTO Book (book_id, num, ISBN, book_name, author, introduction, collection_type)
+		VALUES (book_id_seq.nextval, 0, '{ISBN}', '{book_name}', '{author}', '{introduction}', '{collection_type}')
 	</InsertBk>
 
 	<!-- 更新书籍信息 -->
 	<UpdateBk>
 		UPDATE Book
-		SET num = {num}, book_name = {book_name}, ISBN = {ISBN}, author = {author}, publisher = {publisher}, publication_date = {publication_date}, introduction = {introduction}, collection_type = {collection_type}
-		WEHRE book_id = {book_id}
+		SET book_name = '{book_name}', ISBN = '{ISBN}', author = '{author}', introduction = '{introduction}', collection_type = '{collection_type}'
+		WHERE book_id = '{book_id}'
 	</UpdateBk>
 
 	<!-- 确认供应商 -->
@@ -108,7 +109,7 @@
 	<!-- 插入供应商 -->
 	<InsertSupplier>
 		INSERT INTO Supplier (supplier_id, supplier_name, phone_number, email, address)
-		VALUES (supplier_id.nextval, '{supplier_name}', '{phone_number}', '{email}', '{address}')
+		VALUES (supplier_id_seq.nextval, '{supplier_name}', '{phone_number}', '{email}', '{address}')
 	</InsertSupplier>
 	
 	<!-- 插入图书类别 -->
@@ -117,10 +118,17 @@
 		VALUES ('{collection_type}', '{note}')
 	</InsertCollectionType>
 
+	<!-- 插入前确认book_id存在 -->
+	<BookConfirm>
+		SELECT COUNT(*)
+		FROM Book
+		WHERE book_id = '{book_id}'
+	</BookConfirm>
+	
 	<!-- 插入购买记录 -->
 	<InsertPurchaseRecord>
-		INSERT INTO PurchaseRecord (admin_id, supplier_id, book_id, purchase_date, quantity, unit_price, total_price, is_approved)
-		VALUES ({admin_id}, {supplier_id}, {book_id}, '{purchase_date}', {quantity}, {unit_price}, {total_price}, {is_approved})
+		INSERT INTO PurchaseRecord (purchase_id, admin_id, supplier_id, book_id, purchase_date, quantity, unit_price, total_price, is_approved)
+		VALUES (purchase_id_seq.nextval, {admin_id}, {supplier_id}, {book_id}, '{purchase_date}', {quantity}, {unit_price}, {total_price}, {is_approved})
 	</InsertPurchaseRecord>
 
 	<!-- 更新书籍数量(插入购买记录时) -->
@@ -132,8 +140,11 @@
 
 	<!-- 所有购买记录 -->
 	<AllPurchaseRecord>
-		SELECT *
-		FROM PurchaseRecord
+		SELECT P.*, B.book_name
+		FROM PurchaseRecord P
+		JOIN Book B
+		ON P.book_id = B.book_id
+		WHERE P.supplier_id = '{supplier_id}'
 	</AllPurchaseRecord>
 
 	<!-- 所有供应商 -->

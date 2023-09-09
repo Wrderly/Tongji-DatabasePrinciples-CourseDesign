@@ -21,14 +21,14 @@
         </div>
         <div>
             <!--<el-select v-model="bookId" placeholder="请选择书籍">
-          <el-option
-            v-for="item in booksList"
-            :key="item.bookId"
-            :label="item.bookName"
-            :value="item.bookId"
-          >
-          </el-option>
-        </el-select>-->
+              <el-option
+                v-for="item in booksList"
+                :key="item.bookId"
+                :label="item.bookName"
+                :value="item.bookId"
+              >
+              </el-option>
+            </el-select>-->
 
             <el-input class="textarea"
                       type="textarea"
@@ -43,154 +43,163 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { addComment, auditComment } from "@/api";
-export default {
-  name: "Comment",
+    import { mapState } from "vuex";
+    import { addComment, auditComment } from "@/api";
+    export default {
+        name: "CoMMent",
 
-  data() {
-    return {
-      loading: false,
-      textarea: "",
-      bookId: "",
-    };
-  },
-  computed: {
-    ...mapState({
-      commentsList(state) {
-        return state.Comments.commentsList;
-      },
-      isAdmin(state) {
-        return state.User.isAdmin;
+        data() {
+            return {
+                loading: false,
+                textarea: "",
+                bookId: "",
+            };
         },
-        readerInfo(state) {
-            if (!this.isAdmin)
-                return state.User.readerInfo;
-            else return {};
+        computed: {
+            ...mapState({
+                commentsList(state) {
+                    return state.Comments.commentsList;
+                },
+                isAdmin(state) {
+                    return state.User.isAdmin;
+                },
+                readerInfo(state) {
+                    if (!this.isAdmin)
+                        return state.User.readerInfo;
+                    else return {};
+                },
+            }),
         },
-    }),
-  },
-  methods: {
-    sendcomment() {
-          this.loading = true;
-          if (!this.textarea) {
-              this.$message({
-                  showClose: true,
-                  message: "请输入评论内容",
-                  type: "error",
-              });
-              return;
-          }
-      let dataObj = {
-          reader_id: this.readerInfo.reader_id,
-          book_id: this.bookId,
-          review_text: this.textarea,
-          now_time: this.$moment().format("YYYY-MM-DD HH:mm:ss")
-      };
-      addComment(dataObj).then(
-        (res) => {
-              this.loading = false;
-              if (res.status == 200) {
-                  this.$message({
-                      showClose: true,
-                      message: "评论添加成功",
-                      type: "success",
-                  });
-                  console.log(res);
-                  this.$store.dispatch("initCommentsList", this.bookId);
-                  this.textarea = "";
-              }
-              else {
-                  this.$message({
-                      showClose: true,
-                      message: res.msg,
-                      type: "error",
-                  });
-              }
-        },
-        (err) => {
-          this.loading = false;
-          console.log(err.message);
-        }
-      );
-    },
-    delComment(reviewId) {
-      this.loading = true;
-      let infoObj = {
-          review_id: reviewId.toString()
-      };
-      auditComment(infoObj).then(
-        (res) => {
-              this.loading = false;
-              if (res.status == 200) {
-                  this.$message({
-                      showClose: true,
-                      message: "删评成功！",
-                      type: "success",
-                  });
-                  console.log(res);
-                  this.$store.dispatch("initCommentsList", this.bookId);
-              }
-              else {
-                  this.$message({
-                      showClose: true,
-                      message: res.msg,
-                      type: "error",
-                  });
-              }
-        },
-        (err) => {
-          this.loading = false;
-          console.log(err.message);
-        }
-      );
-    },
+        methods: {
+            sendcomment() {
+                this.loading = true;
+                if (!this.textarea) {
+                    this.$message({
+                        showClose: true,
+                        message: "请输入评论内容",
+                        type: "error",
+                    });
+                    return;
+                }
+                let dataObj = {
+                    reader_id: this.readerInfo.reader_id,
+                    book_id: this.bookId,
+                    review_text: this.textarea,
+                    now_time: this.$moment().format("YYYY-MM-DD HH:mm:ss")
+                };
+                addComment(dataObj).then(
+                    (res) => {
+                        this.loading = false;
+                        if (res.status == 200) {
+                            this.$message({
+                                showClose: true,
+                                message: "评论添加成功",
+                                type: "success",
+                            });
+                            console.log(res);
+                            this.$store.dispatch("initCommentsList", this.bookId);
+                            this.textarea = "";
+                        }
+                        else {
+                            this.$message({
+                                showClose: true,
+                                message: res.msg,
+                                type: "error",
+                            });
+                        }
+                    },
+                    (err) => {
+                        this.loading = false;
+                        console.log(err.message);
+                    }
+                );
+            },
+            delComment(reviewId) {
+                this.loading = true;
+                let infoObj = {
+                    review_id: reviewId.toString()
+                };
+                auditComment(infoObj).then(
+                    (res) => {
+                        this.loading = false;
+                        if (res.status == 200) {
+                            this.$message({
+                                showClose: true,
+                                message: "删评成功！",
+                                type: "success",
+                            });
+                            console.log(res);
+                            this.$store.dispatch("initCommentsList", this.bookId);
+                        }
+                        else {
+                            this.$message({
+                                showClose: true,
+                                message: res.msg,
+                                type: "error",
+                            });
+                        }
+                    },
+                    (err) => {
+                        this.loading = false;
+                        console.log(err.message);
+                    }
+                );
+            },
         },
         mounted() {
             this.bookId = this.$route.query.BOOK_ID;
             this.$store.dispatch("initCommentsList", this.bookId);
         },
-};
+    };
 </script>
 
 <style lang="less" scoped>
-.wrap {
-  position: relative;
-  .comment {
-    position: relative;
-    .report {
-      float: right;
-      margin-left: 20px;
-      //   margin-right: 30%;
-    }
-    .time {
-      font-family: inherit;
-      font-style: italic;
-      font-size: small;
-      color: #79cde2;
-      margin: 10px;
-    }
-    .reader {
-      font-style: italic;
-      font-family: Arial;
-      position: absolute;
-      bottom: 5px;
-      right: 50px;
-    }
-    .content {
-      text-indent: 2em;
-    }
-  }
-  .textarea {
-    // position: absolute;
-    margin-top: 20px;
-  }
+    .wrap {
+        position: relative;
+        .comment
 
-  .sendcomment {
-    margin-top: 20px;
-    // position: absolute;
-    // right: 0;
-    margin-left: 88%;
-  }
-}
+    {
+        position: relative;
+        .report
+
+    {
+        float: right;
+        margin-left: 20px;
+        // margin-right: 30%;
+    }
+
+    .time {
+        font-family: inherit;
+        font-style: italic;
+        font-size: small;
+        color: #79cde2;
+        margin: 10px;
+    }
+
+    .reader {
+        font-style: italic;
+        font-family: Arial;
+        position: absolute;
+        bottom: 5px;
+        right: 50px;
+    }
+
+    .content {
+        text-indent: 2em;
+    }
+
+    }
+
+    .textarea {
+        // position: absolute;
+        margin-top: 20px;
+    }
+
+    .sendcomment {
+        margin-top: 20px;
+        // position: absolute;
+        // right: 0;
+        margin-left: 88%;
+    }
+    }
 </style>

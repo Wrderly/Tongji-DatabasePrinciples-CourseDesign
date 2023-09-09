@@ -1,5 +1,4 @@
 import { searchBook } from '@/api'
-import Vue from 'vue'
 const state = {
    booksList:[],
 }

@@ -3,24 +3,24 @@ import requests from "./request";
 
 // 注册接口
 export const register = (readerInfo) =>
-  requests({
-    url: "/UserApi/register",
-    method: "post",
-    headers: {
-        "Content-Type": "application/json",
-      },
-     data: JSON.stringify(readerInfo),
-  });
+    requests({
+        url: "/UserApi/register",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerInfo),
+    });
 // 用户登录接口
 export const login_reader = (readerInfo) =>
-  requests({
-      url: "/UserApi/login",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(readerInfo),
-  });
+    requests({
+        url: "/UserApi/login",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerInfo),
+    });
 // 管理员登录接口
 export const login_admin = (adminInfo) =>
     requests({
@@ -33,166 +33,166 @@ export const login_admin = (adminInfo) =>
     });
 // 重新获取学生信息接口
 export const initReader = (readerId) =>
-  requests({
-      url: "/UserApi/initreader",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(readerId),
-  });
+    requests({
+        url: "/UserApi/initreader",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerId),
+    });
 // 重置密码
 export const change_pwd = (
     reader_id,
-  oldPassword,
-  newPassword,
-  confirmNewPassword
+    oldPassword,
+    newPassword,
+    confirmNewPassword
 ) =>
-  requests({
-      url: "/UserApi/updatepassword",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(
-        reader_id,
-      oldPassword,
-      newPassword,
-      confirmNewPassword
-    ),
-  });
+    requests({
+        url: "/UserApi/updatepassword",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(
+            reader_id,
+            oldPassword,
+            newPassword,
+            confirmNewPassword
+        ),
+    });
 // 注销账户
 export const logout_reader = (readerId) =>
-  requests({
-      url: "/UserApi/logout",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(readerId),
-  });
+    requests({
+        url: "/UserApi/logout",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerId),
+    });
 // 提交反馈
 export const reader_report = (reportInfo) =>
-  requests({
-      url: "/UserApi/readerreport",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-      data: JSON.stringify(reportInfo),
-  });
+    requests({
+        url: "/UserApi/readerreport",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(reportInfo),
+    });
 // 评论区接口
 export const initCommentsList = (BOOKobj) =>
-  requests({
-      url: "/UserApi/initcommentslist",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-      },
-      data: JSON.stringify(BOOKobj),
-  });
+    requests({
+        url: "/UserApi/initcommentslist",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(BOOKobj),
+    });
 // 添加评论接口
 export const addComment = (dataObj) =>
-  requests({
-      url: "/UserApi/addreview",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(dataObj),
-  });
+    requests({
+        url: "/UserApi/addreview",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(dataObj),
+    });
 // 删除评论接口
 export const auditComment = (infoObj) =>
-  requests({
-      url: "/UserApi/deletereview",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(infoObj),
-  });
+    requests({
+        url: "/UserApi/deletereview",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(infoObj),
+    });
 // 删除预约记录接口
 export const deleteReserve = (reserveObj) =>
-  requests({
-      url: "/UserApi/deletereserve",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(reserveObj),
-  });
+    requests({
+        url: "/UserApi/deletereserve",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(reserveObj),
+    });
 // 借书接口
 export const addBorrow = (borrowObj) =>
-  requests({
-      url: "/UserApi/borrowbook",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(borrowObj),
-  });
+    requests({
+        url: "/UserApi/borrowbook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(borrowObj),
+    });
 
 // 书名查找接口
 export const searchBook = (bookNameObj) =>
-  requests({
-      url: "/UserApi/searchBook",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(bookNameObj),
-  });
+    requests({
+        url: "/UserApi/searchBook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(bookNameObj),
+    });
 
 // 读者请求借阅记录接口
 export const initBorrows = (readerId) =>
-  requests({
-      url: "/UserApi/initborrows",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(readerId),
-  });
+    requests({
+        url: "/UserApi/initborrows",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerId),
+    });
 // 添加预约记录接口
 export const addReserve = (reserveObj) =>
-  requests({
-      url: "/UserApi/reservebook",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(reserveObj),
-  });
+    requests({
+        url: "/UserApi/reservebook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(reserveObj),
+    });
 // 续借接口
 export const continueBorrow = (infoObj) =>
-  requests({
-      url: "/UserApi/continueborrow",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(infoObj),
-  });
+    requests({
+        url: "/UserApi/continueborrow",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(infoObj),
+    });
 // 还书接口
 export const returnBook = (infoObj) =>
-  requests({
-      url: "/UserApi/returnbook",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    data: JSON.stringify(infoObj),
-  });
+    requests({
+        url: "/UserApi/returnbook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(infoObj),
+    });
 // 查询预约接口
 export const initReserve = (readerId) =>
-  requests({
-      url: "/UserApi/initreserve",
-    method: "post",
-    headers: {
-      "Content-Type": "application/json",
-    },
-      data: JSON.stringify(readerId),
-  });
+    requests({
+        url: "/UserApi/initreserve",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(readerId),
+    });
 //预约超时接口
 export const ReserveOvertime = (infoObj) =>
     requests({
@@ -288,32 +288,72 @@ export const initSupplierList = () =>
 // 添加供应商接口
 export const addSupplier = (SupplierObj) =>
     requests({
-        url: "/AdminApi/initsupplierlist",
+        url: "/AdminApi/addsupplier",
         method: "post",
         headers: {
             "Content-Type": "application/json",
         },
         data: JSON.stringify(SupplierObj),
     });
+// 购买记录接口
+export const initBuyBookList = (BuyBookObj) =>
+    requests({
+        url: "/AdminApi/initpurchaserecord",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(BuyBookObj),
+    });
+// 添加购买记录接口
+export const addBuyBook = (BuyBookObj) =>
+    requests({
+        url: "/AdminApi/addpurchaserecord",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(BuyBookObj),
+    });
+// 图书类型接口
+export const initBooktypeList = () =>
+    requests({
+        url: "/AdminApi/initbooktypelist",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(),
+    });
+// 添加图书类型接口
+export const AddBooktype = (BookObj) =>
+    requests({
+        url: "/AdminApi/addcollectiontype",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(BookObj),
+    });
+// 添加图书接口
+export const AddBook = (BookObj) =>
+    requests({
+        url: "/AdminApi/insertbook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(BookObj),
+    });
+// 修改书接口
+export const changebookInfo = (bookObj) =>
+    requests({
+        url: "/AdminApi/updatebook",
+        method: "post",
+        headers: {
+            "Content-Type": "application/json",
+        },
+        data: JSON.stringify(bookObj),
+    });
 
 
-//// 修改书接口
-//export const searchBook = (bookNameObj) =>
-//    requests({
-//        url: "/AdminApi/searchBook",
-//        method: "post",
-//        headers: {
-//            "Content-Type": "application/json",
-//        },
-//        data: JSON.stringify(bookNameObj),
-//    });
-//// 删除书接口
-//export const searchBook = (bookNameObj) =>
-//    requests({
-//        url: "/AdminApi/searchBook",
-//        method: "post",
-//        headers: {
-//            "Content-Type": "application/json",
-//        },
-//        data: JSON.stringify(bookNameObj),
-//    });

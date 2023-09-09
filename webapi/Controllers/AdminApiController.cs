@@ -387,7 +387,7 @@ namespace webapi.Controllers
         /// <summary>
         /// 获取已违约的借书列表 API
         /// </summary>
-        [HttpPost("initborrowlist")]
+        [HttpPost("initborrowslist")]
         public IActionResult InitBorrowList()
         {
             if (db == null)
@@ -404,24 +404,24 @@ namespace webapi.Controllers
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
                 {
                     DataTable dataTable = result.Tables[0];
-                    List<Dictionary<string, string>> borrowLists = new List<Dictionary<string, string>>();
+                    List<Dictionary<string, string>> borrowslists = new List<Dictionary<string, string>>();
 
                     foreach (DataRow row in dataTable.Rows)
                     {
-                        Dictionary<string, string> borrowList = new Dictionary<string, string>();
+                        Dictionary<string, string> borrowslist = new Dictionary<string, string>();
 
                         foreach (DataColumn column in dataTable.Columns)
                         {
-                            borrowList[column.ColumnName] = row[column].ToString();
+                            borrowslist[column.ColumnName] = row[column].ToString();
                         }
 
-                        borrowLists.Add(borrowList);
+                        borrowslists.Add(borrowslist);
                     }
 
                     return Ok(new
                     {
                         status = 200,
-                        borrowLists
+                        borrowslists
                     });
                 }
                 else
@@ -514,7 +514,8 @@ namespace webapi.Controllers
                 string tempSql, sql; // 用于拼装sql字符串的临时变量
 
                 // 获取购买记录的 SQL 查询，包括相关书籍信息
-                sql = doc.Root.Element("AllPurchaseRecord").Value;
+                tempSql = doc.Root.Element("AllPurchaseRecord").Value;
+                sql = tempSql.Replace("{supplier_id}", requestData["supplier_id"].ToString());
                 DataSet result = db.OracleQuery(sql);
 
                 if (result.Tables.Count > 0 && result.Tables[0].Rows.Count > 0)
@@ -548,8 +549,8 @@ namespace webapi.Controllers
         /// <summary>
         /// 查询所有供应商 API
         /// </summary>
-        [HttpPost("initsupplier")]
-        public IActionResult InitSupplier()
+        [HttpPost("initsupplierlist")]
+        public IActionResult InitSupplierList()
         {
             if (db == null)
             {
@@ -642,7 +643,7 @@ namespace webapi.Controllers
         /// 插入新书 API
         /// </summary>
         /// <param name="data">包含图书信息</param>
-        [HttpGet("insertbook")]
+        [HttpPost("insertbook")]
         public IActionResult InsertBook([FromBody] JObject data)
         {
             if (db == null)
@@ -672,10 +673,9 @@ namespace webapi.Controllers
                 sql = tempSql.Replace("{book_name}", data["book_name"].ToString())
                              .Replace("{ISBN}", data["ISBN"].ToString())
                              .Replace("{author}", data["author"].ToString())
-                             .Replace("{publisher}", data["publisher"].ToString())
-                             .Replace("{publication_date}", data["publication_date"].ToString())
                              .Replace("{introduction}", data["introduction"].ToString())
                              .Replace("{collection_type}", data["collection_type"].ToString());
+                            
                 db.OracleUpdate(sql);
 
                 return Ok(new
@@ -696,7 +696,7 @@ namespace webapi.Controllers
         /// 更新图书信息 API
         /// </summary>
         /// <param name="data">包含图书信息</param>
-        [HttpGet("updatebook")]
+        [HttpPost("updatebook")]
         public IActionResult UpdateBook([FromBody] JObject data)
         {
             if (db == null)
@@ -710,11 +710,8 @@ namespace webapi.Controllers
                 tempSql = doc.Root.Element("UpdateBk").Value;
                 sql = tempSql.Replace("{book_id}", data["book_id"].ToString())
                              .Replace("{book_name}", data["book_name"].ToString())
-                             .Replace("{book_name}", data["book_name"].ToString())
                              .Replace("{ISBN}", data["ISBN"].ToString())
                              .Replace("{author}", data["author"].ToString())
-                             .Replace("{publisher}", data["publisher"].ToString())
-                             .Replace("{publication_date}", data["publication_date"].ToString())
                              .Replace("{introduction}", data["introduction"].ToString())
                              .Replace("{collection_type}", data["collection_type"].ToString());
                 db.OracleUpdate(sql);
@@ -860,6 +857,21 @@ namespace webapi.Controllers
                 string tempSql, sql; // 用于拼装sql字符串的临时变量
 
                 decimal totalPrice = Convert.ToDecimal(purchaseData["unit_price"]) * Convert.ToInt32(purchaseData["quantity"]);
+
+                // 检查Book是否存在
+                tempSql = doc.Root.Element("BookConfirm").Value;
+                sql = tempSql.Replace("{book_id}", purchaseData["book_id"].ToString());
+                DataSet result = db.OracleQuery(sql);
+
+                int existingCount = Convert.ToInt32(result.Tables[0].Rows[0][0]);
+                if (existingCount <= 0)
+                {
+                    return Ok(new
+                    {
+                        status = 400,
+                        msg = "该书不存在"
+                    });
+                }
 
                 // 构建 SQL 插入购买记录语句
                 tempSql = doc.Root.Element("InsertPurchaseRecord").Value;

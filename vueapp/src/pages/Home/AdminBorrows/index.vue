@@ -11,44 +11,44 @@
                 </el-form>
             </template>
         </el-table-column>
-        <el-table-column prop="reader_id" label="读者ID">
+        <el-table-column prop="READER_ID" label="读者ID">
             <template slot-scope="props">
-                <span style="display: block; text-align: center;">{{ props.row.READER_ID }}</span>
+                <span>{{ props.row.READER_ID }}</span>
             </template>
         </el-table-column>
-        <el-table-column prop="book_id" label="书籍ID">
+        <el-table-column prop="BOOK_ID" label="书籍ID">
             <template slot-scope="props">
-                <span style="display: block; text-align: center;">{{ props.row.BOOK_ID }}</span>
+                <span>{{ props.row.BOOK_ID }}</span>
             </template>
         </el-table-column>
-        <el-table-column prop="book_name" label="书籍名称">
+        <el-table-column prop="BOOK_NAME" label="书籍名称">
             <template slot-scope="props">
-                <span style="display: block; text-align: center;">《{{ props.row.BOOK_NAME }}》</span>
+                <span>《{{ props.row.BOOK_NAME }}》</span>
             </template>
         </el-table-column>
-        <el-table-column prop="author" label="书籍作者">
+        <el-table-column prop="AUTHOR" label="书籍作者">
             <template slot-scope="props">
-                <span style="display: block; text-align: center;">{{ props.row.AUTHOR }}</span>
+                <span>{{ props.row.AUTHOR }}</span>
             </template>
         </el-table-column>
     </el-table>
 </template>
 
 <script>
-import { mapState } from "vuex";
-export default {
-  name: "AdminBorrows",
-  computed: {
-    ...mapState({
-        borrowsList(state) {
-            return state.Borrows.borrowsList;
-      },
-    }),
-  },
-   mounted() {
-       this.$store.dispatch("initBorrowsList");
-  },
-};
+    import { mapState } from "vuex";
+    export default {
+        name: "AdminBorrows",
+        computed: {
+            ...mapState({
+                borrowsList(state) {
+                    return state.Borrows.borrowsList;
+                },
+            }),
+        },
+        mounted() {
+            this.$store.dispatch("initBorrowsList");
+        },
+    };
 </script>
 
 <style lang="less" scoped></style>

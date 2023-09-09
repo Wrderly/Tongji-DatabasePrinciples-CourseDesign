@@ -59,41 +59,25 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-export default {
-  name: "AdminBanner",
-  data() {
-    return {
-      isCollapse: true
+    export default {
+        name: "AdminBanner",
+        data() {
+            return {
+                isCollapse: true
+            };
+        },
+        methods: {
+            handleOpen() {
+                console.log(1);
+            },
+            handleClose() {
+                console.log(2);
+            },
+            toggleUser() {
+                this.$router.push("/LoginRegister");
+            }
+        }
     };
-  },
-
-  mounted() {
-    // this.$store.dispatch('initCommentsList')
-    // this.$store.dispatch('initBorrowsList')
-    // this.$store.dispatch('initReserveList')
-    // this.$store.dispatch('initReaderList')
-    // this.$store.dispatch('initReportList')
-  },
-    computed: {
-    ...mapState({
-      admin_id(state) {
-        return state.User.adminInfo.admin_id;
-      },
-    }),
-  },
-  methods: {
-    handleOpen() {
-      console.log(1);
-    },
-    handleClose() {
-      console.log(2);
-    },
-    toggleUser() {
-      this.$router.push("/LoginRegister");
-    }
-  }
-};
 </script>
 
 <style lang="less" scoped>

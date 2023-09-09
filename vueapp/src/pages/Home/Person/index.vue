@@ -48,65 +48,65 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-import { updateCount } from "@/api";
-export default {
-  data() {
-        return {
-            readerId:0,
-            dialogVisible: false, // 对话框显示状态
-      newCount:0,
-      loading: false,
-    };
-  },
-  name: "Person",
-  mounted() {
-    this.$store.dispatch("initReaderList");
-  },
+    import { mapState } from "vuex";
+    import { updateCount } from "@/api";
+    export default {
+        data() {
+            return {
+                readerId: 0,
+                dialogVisible: false, // 对话框显示状态
+                newCount: 0,
+                loading: false,
+            };
+        },
+        name: "PerSon",
+        mounted() {
+            this.$store.dispatch("initReaderList");
+        },
         methods: {
             showDialog(index) {
                 this.readerId = this.readerList[index].READER_ID;
                 this.newCount = this.readerList[index].OVERDUE_TIMES; // 设置初始值为当前行的违约次数
                 this.dialogVisible = true;
             },
-    // 修改违约次数
-    UpdateCount() {
-        let reader_id = this.readerId;
-        let overdue_times = this.newCount;
-        let Obj = { reader_id, overdue_times };
-      console.log(Obj);
-      this.loading = true;
-          updateCount(Obj).then(
-        (res) => {
-          this.loading = false;
-          console.log(res);
-          if (res.status == 200) {
-            this.$message({
-              showClose: true,
-              message: "修改成功！",
-              type: "success",
-            });
-              this.dialogVisible = false;
-              this.newCount = 0;
-              this.readerId = 0;
-          }
+            // 修改违约次数
+            UpdateCount() {
+                let reader_id = this.readerId;
+                let overdue_times = this.newCount;
+                let Obj = { reader_id, overdue_times };
+                console.log(Obj);
+                this.loading = true;
+                updateCount(Obj).then(
+                    (res) => {
+                        this.loading = false;
+                        console.log(res);
+                        if (res.status == 200) {
+                            this.$message({
+                                showClose: true,
+                                message: "修改成功！",
+                                type: "success",
+                            });
+                            this.dialogVisible = false;
+                            this.newCount = 0;
+                            this.readerId = 0;
+                        }
+                    },
+                    (err) => {
+                        this.loading = false;
+                        console.log(err.message);
+                    }
+                );
+                this.$store.dispatch("initReaderList");
+            },
         },
-        (err) => {
-          this.loading = false;
-          console.log(err.message);
-        }
-      );
-      this.$store.dispatch("initReaderList");
-    },
-  },
-  computed: {
-    ...mapState({
-      readerList(state) {
-          return state.User.readerList;
-      },
-    }),
-  },
-};
+        computed: {
+            ...mapState({
+                readerList(state) {
+                    return state.User.readerList;
+                },
+            }),
+        },
+    };
 </script>
 
 <style lang="less" scoped></style>

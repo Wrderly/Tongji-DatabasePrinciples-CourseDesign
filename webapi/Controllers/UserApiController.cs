@@ -337,7 +337,7 @@ namespace webapi.Controllers
                     db.OracleUpdate(sql);
 
                     // 删除该读者的所有书评
-                    tempSql = doc.Root.Element("DelReview").Value;
+                    tempSql = doc.Root.Element("DelComments").Value;
                     sql = tempSql.Replace("{reader_id}", userData["reader_id"].ToString());
                     db.OracleUpdate(sql);
 
